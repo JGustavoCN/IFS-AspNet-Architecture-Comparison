@@ -253,6 +253,19 @@ A página de listagem de estudantes foi aprimorada para permitir que o usuário 
     * **No PageModel:** Propriedades como `NameSort` e `DateSort` foram adicionadas para controlar o estado atual da classificação. Elas usam operadores ternários para determinar qual será o próximo estado de classificação (ascendente ou descendente) quando um link for clicado.
     * **Na View (`Index.cshtml`):** O `asp-route-sortOrder` Tag Helper foi utilizado nos links dos cabeçalhos das colunas. Ele passa o valor de `NameSort` ou `DateSort` como um parâmetro de consulta na URL, que é então lido pelo método `OnGetAsync` na próxima requisição, completando o ciclo.
 
+### 5.2. Filtragem de Dados do Lado do Servidor
+
+Para aprimorar a usabilidade da página, foi adicionada a funcionalidade de filtragem, permitindo ao usuário buscar estudantes por nome ou sobrenome.
+
+* **Implementação na View (`Index.cshtml`):** Um formulário (`<form>`) foi adicionado contendo uma caixa de texto (`<input type="text" name="SearchString">`) e um botão de envio. Crucialmente, o formulário utiliza `method="get"`, o que faz com que o termo de busca seja enviado como um parâmetro na query string da URL (ex: `.../Students?SearchString=Anand`). Essa abordagem é uma boa prática para operações de busca, pois não modifica dados no servidor e permite que os usuários salvem ou compartilhem a URL com os resultados da pesquisa.
+
+* **Lógica no PageModel (`Index.cshtml.cs`):**
+    * O método `OnGetAsync` foi atualizado para receber o parâmetro `searchString` da URL.
+    * A lógica de filtragem foi aplicada diretamente sobre o `IQueryable`, antes da lógica de classificação e da chamada final a `.ToListAsync()`.
+    * Foi utilizada uma cláusula `Where()` condicional (`if (!String.IsNullOrEmpty(searchString))`) que filtra os estudantes cujo `LastName` ou `FirstMidName` contenha a string de busca.
+
+* **Vantagem de Performance (`IQueryable` vs. `IEnumerable`):** Ao aplicar o filtro `.Where()` sobre o `IQueryable`, garantimos que a filtragem ocorra **no lado do servidor de banco de dados**. O Entity Framework traduz a cláusula `Where` para uma cláusula `WHERE` em SQL. A alternativa, que seria buscar todos os dados e filtrá-los na memória da aplicação (com `IEnumerable`), seria drasticamente menos performática, especialmente com grandes volumes de dados.
+
 ## 6\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |

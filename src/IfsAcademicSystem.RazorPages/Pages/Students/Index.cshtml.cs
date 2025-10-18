@@ -25,7 +25,7 @@ namespace IfsAcademicSystem.RazorPages.Pages.Students
 
         public IList<Student> Students { get; set; }
 
-        public async Task OnGetAsync(string sortOrder)
+        public async Task OnGetAsync(string sortOrder, string searchString)
         {
             // using System;
             NameSort = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
@@ -33,6 +33,14 @@ namespace IfsAcademicSystem.RazorPages.Pages.Students
 
             IQueryable<Student> studentsIQ = from s in _context.Students
                                              select s;
+
+            CurrentFilter = searchString;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                studentsIQ = studentsIQ.Where(s => s.LastName.Contains(searchString)
+                                       || s.FirstMidName.Contains(searchString));
+            }
 
             switch (sortOrder)
             {
