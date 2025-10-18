@@ -1,0 +1,73 @@
+# Arquivo .gitignore otimizado para projetos .NET, incluindo ASP.NET Core, Razor Pages e Blazor.
+# Gerado a partir dos padrões da comunidade em github/gitignore.
+
+# Arquivos específicos de IDEs e do sistema operacional
+## Visual Studio, VS Code, Rider
+.vs/
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sln.iml
+
+## macOS & Windows
+.DS_Store
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+
+# Arquivos de usuário específicos de IDEs que não devem ser compartilhados
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Pastas de resultados de compilação (Build) - A parte mais importante!
+## O uso de `[Bb]in/` garante que ignore tanto 'bin' quanto 'Bin'.
+[Bb]in/
+[Oo]bj/
+
+# Arquivos de log e cache
+[Ll]og/
+[Ll]ogs/
+*.log
+*.tlog
+*.binlog
+
+# Arquivos gerados pelo Scaffolding (gerador de código)
+ScaffoldingReadMe.txt
+
+# Pacotes NuGet
+## A pasta 'packages' é restaurada automaticamente pelo .NET
+**/[Pp]ackages/*
+# Manter os alvos de build do MSBuild que podem estar dentro de 'packages'
+!**/[Pp]ackages/build/
+
+# Arquivos de publicação (Publish)
+## Geralmente, a publicação é feita em um ambiente de CI/CD, não no repositório
+[Pp]ublish/
+*.publish.xml
+*.pubxml
+PublishScripts/
+
+# Arquivos temporários do Entity Framework Core
+*-design.exe
+*-design.dll
+
+# Arquivos de teste
+[Tt]est[Rr]esult*/
+*.coverage
+*.coveragexml
+
+# Outros arquivos temporários e de cache
+~$*
+*~
+*.tmp
+*.bak
+
+# Bancos de dados locais que não devem ir para o repositório
+*.mdf
+*.ldf
+*.db
