@@ -199,6 +199,16 @@ Além da abordagem com `TryUpdateModelAsync`, uma prática de segurança e arqui
 
 Essa abordagem garante que apenas os dados estritamente necessários transitem entre a UI e o back-end, oferecendo o mais alto nível de segurança contra overposting e promovendo um design mais limpo e de baixo acoplamento.
 
+### 4.10. Refatoração da Página de Edição para Segurança e Performance
+
+A página de edição de estudantes (`Edit.cshtml.cs`) foi refatorada para aplicar as mesmas boas práticas de segurança vistas na página de criação, além de introduzir otimizações de performance.
+
+* **Prevenção de Overposting na Edição:** O método `OnPostAsync` original era vulnerável, pois anexava diretamente a entidade vinda do formulário ao `DbContext`. A nova implementação é mais segura:
+    1.  Primeiro, a entidade original do estudante (`studentToUpdate`) é buscada no banco de dados usando seu `id`.
+    2.  Em seguida, o método `TryUpdateModelAsync` é utilizado para aplicar as alterações do formulário **apenas** nas propriedades permitidas (`FirstMidName`, `LastName`, `EnrollmentDate`) sobre a entidade que foi carregada do banco. Isso garante que um atacante não possa modificar propriedades que não estão no formulário.
+
+* **Otimização de Consulta com `FindAsync`:** No método `OnGetAsync`, a consulta para buscar o estudante foi alterada de `FirstOrDefaultAsync` para `FindAsync(id)`. O método `FindAsync` é otimizado especificamente para buscar uma entidade pela sua chave primária. Ele primeiro verifica se a entidade já está sendo rastreada pelo `DbContext` e, se estiver, a retorna sem fazer uma nova consulta ao banco, tornando a operação mais eficiente para este cenário.
+
 ## 5\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
