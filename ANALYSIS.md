@@ -284,7 +284,7 @@ Para exibir estatísticas sobre o corpo discente, foi criada a página "Sobre", 
 
 * **ViewModel Específico para a Tela (`EnrollmentDateGroup`):** Em vez de retornar os dados brutos, foi criado um ViewModel (`EnrollmentDateGroup.cs`) contendo apenas as duas propriedades necessárias para a exibição: `EnrollmentDate` e `StudentCount`. Essa abordagem (usar um modelo específico para a view) desacopla a camada de apresentação do modelo de domínio e é uma prática recomendada para clareza e segurança.
 
-* **Agregação Eficiente com LINQ `group by`:** A lógica de agregação foi implementada no `PageModel` (`About.cshtml.cs`) usando uma consulta LINQ com a cláusula `group student by student.EnrollmentDate`. Essa operação é traduzida pelo Entity Framework em uma consulta SQL `GROUP BY` eficiente, que é executada inteiramente no servidor de banco de dados. Como resultado, apenas os dados já agrupados e contados são transferidos para a aplicação, o que é extremamente performático, independentemente do número de estudantes no banco.
+* **Agregação Eficiente com LINQ `group by`:** A lógica de agregação foi implementada no `PageModel` (`About.cshtml.cs`) usando uma consulta LINQ com a cláusula `group student by student.EnrollmentDate`. Essa operação é traduzida pelo Entity Framework em uma consulta SQL `GROUP BY` eficiente, que é executada inteiramente no servidor de banco de dados que é o SQLServer. Como resultado, apenas os dados já agrupados e contados são transferidos para a aplicação, o que é extremamente performático, independentemente do número de estudantes no banco.
 
 ## 6\. Comparativo Lado a Lado
 
