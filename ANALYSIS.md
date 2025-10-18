@@ -237,9 +237,23 @@ Para tornar a aplicação mais resiliente, a página de exclusão (`Delete.cshtm
     2. Redireciona o usuário de volta para a mesma página de exclusão, mas passando um parâmetro na URL (`saveChangesError = true`).
     3. O método `OnGetAsync` utiliza esse parâmetro para definir uma mensagem de erro amigável, que é então exibida na UI, instruindo o usuário a tentar novamente.
 
-Essa abordagem melhora significativamente a experiência do usuário e a estabilidade da aplicação ao lidar com falhas inesperadas na camada de dado.
+Essa abordagem melhora significativamente a experiência do usuário e a estabilidade da aplicação ao lidar com falhas inesperadas na camada de dados.
 
-## 5\. Comparativo Lado a Lado
+## 5. Implementação de Funcionalidades Avançadas na UI
+
+Nesta seção, detalhamos a implementação de funcionalidades que melhoram a experiência do usuário na manipulação e visualização de dados, focando nas técnicas aplicadas na camada de apresentação.
+
+### 5.1. Classificação Dinâmica de Dados na Listagem de Estudantes
+
+A página de listagem de estudantes foi aprimorada para permitir que o usuário classifique os dados clicando nos cabeçalhos das colunas (Sobrenome e Data de Matrícula).
+
+* **Execução Adiada com `IQueryable`:** A chave para esta implementação é o uso de `IQueryable<Student>`. Em vez de buscar todos os dados do banco imediatamente, um `IQueryable` representa a *consulta* em si. A lógica no `PageModel` (`Index.cshtml.cs`) constrói dinamicamente a consulta adicionando cláusulas `OrderBy` ou `OrderByDescending` com base no parâmetro `sortOrder` recebido da URL. A consulta só é enviada ao banco de dados e executada no último momento, quando o método `.ToListAsync()` é chamado. Isso é extremamente eficiente, pois garante que uma única consulta otimizada seja gerada, contendo todas as regras de classificação.
+
+* **Gerenciamento de Estado na UI:**
+    * **No PageModel:** Propriedades como `NameSort` e `DateSort` foram adicionadas para controlar o estado atual da classificação. Elas usam operadores ternários para determinar qual será o próximo estado de classificação (ascendente ou descendente) quando um link for clicado.
+    * **Na View (`Index.cshtml`):** O `asp-route-sortOrder` Tag Helper foi utilizado nos links dos cabeçalhos das colunas. Ele passa o valor de `NameSort` ou `DateSort` como um parâmetro de consulta na URL, que é então lido pelo método `OnGetAsync` na próxima requisição, completando o ciclo.
+
+## 6\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
 | :--- | :--- | :--- |
@@ -250,6 +264,6 @@ Essa abordagem melhora significativamente a experiência do usuário e a estabil
 | **Ideal para...** | Aplicações centradas em formulários, operações CRUD e cenários onde a página é a unidade principal de funcionalidade. | Aplicações complexas com regras de negócio ricas, APIs web, e cenários que exigem alta testabilidade e flexibilidade. |
 | **Reutilização de Lógica** | *(Preencha com sua análise, ex: via View Components, classes base para PageModel)* | *(Preencha com sua análise, ex: Controllers podem servir múltiplas Actions e ser usados para APIs e UI)* |
 
-## 6\. Conclusão
+## 7\. Conclusão
 
 *Aqui você escreverá sua conclusão pessoal sobre qual abordagem se encaixou melhor para este tipo de projeto e por quê, considerando os pontos levantados na organização do código, na camada de dados e no comparativo geral.*
