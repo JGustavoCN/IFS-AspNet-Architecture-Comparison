@@ -187,6 +187,18 @@ Um ponto crítico de segurança foi abordado ao refatorar o método `OnPostAsync
     2. **Lista de Permissões Explícita:** `TryUpdateModelAsync` foi chamado com uma lista explícita das propriedades que são permitidas para atualização a partir dos dados do formulário (`s => s.FirstMidName, s => s.LastName, s => s.EnrollmentDate`).
     3. **Segurança Garantida:** Qualquer outro campo enviado na requisição que não esteja nesta lista de permissões é simplesmente ignorado. Isso garante que apenas os dados esperados sejam mapeados para a nova entidade antes de serem salvos no banco de dados, fechando a brecha de segurança de overposting.
 
+### 4.9. Padrão Alternativo de Segurança: ViewModels (VMs)
+
+Além da abordagem com `TryUpdateModelAsync`, uma prática de segurança e arquitetura ainda mais robusta para prevenir o overposting é o uso de **ViewModels** (também conhecidos como DTOs - Data Transfer Objects).
+
+* **O Problema:** A vulnerabilidade de overposting ocorre porque o modelo de domínio (a classe `Student`, que representa a tabela do banco) pode conter propriedades sensíveis (`Secret`, `IsAdmin`, etc.) que não estão presentes no formulário da UI. Um atacante pode forjar uma requisição HTTP para enviar valores para esses campos ocultos, e um mecanismo de *model binding* ingênuo poderia salvá-los diretamente no banco de dados.
+
+* **Solução com ViewModels:** O padrão ViewModel resolve isso criando uma camada de abstração. Em vez de expor o modelo de domínio diretamente para a UI, cria-se uma classe específica para a tela em questão (ex: `StudentVM`).
+    * ** desacoplamento:** Esta `StudentVM` contém **apenas** as propriedades que a UI precisa exibir ou editar (`LastName`, `FirstMidName`, `EnrollmentDate`).
+    * **Mapeamento Explícito:** No back-end, os dados são recebidos na `StudentVM`. Em seguida, o código mapeia manualmente (ou com uma ferramenta como o AutoMapper) os valores da VM para uma nova instância da entidade de domínio (`Student`) antes de salvá-la.
+
+Essa abordagem garante que apenas os dados estritamente necessários transitem entre a UI e o back-end, oferecendo o mais alto nível de segurança contra overposting e promovendo um design mais limpo e de baixo acoplamento.
+
 ## 5\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
