@@ -194,8 +194,8 @@ Além da abordagem com `TryUpdateModelAsync`, uma prática de segurança e arqui
 * **O Problema:** A vulnerabilidade de overposting ocorre porque o modelo de domínio (a classe `Student`, que representa a tabela do banco) pode conter propriedades sensíveis (`Secret`, `IsAdmin`, etc.) que não estão presentes no formulário da UI. Um atacante pode forjar uma requisição HTTP para enviar valores para esses campos ocultos, e um mecanismo de *model binding* ingênuo poderia salvá-los diretamente no banco de dados.
 
 * **Solução com ViewModels:** O padrão ViewModel resolve isso criando uma camada de abstração. Em vez de expor o modelo de domínio diretamente para a UI, cria-se uma classe específica para a tela em questão (ex: `StudentVM`).
-    * ** desacoplamento:** Esta `StudentVM` contém **apenas** as propriedades que a UI precisa exibir ou editar (`LastName`, `FirstMidName`, `EnrollmentDate`).
-    * **Mapeamento Explícito:** No back-end, os dados são recebidos na `StudentVM`. Em seguida, o código mapeia manualmente (ou com uma ferramenta como o AutoMapper) os valores da VM para uma nova instância da entidade de domínio (`Student`) antes de salvá-la.
+  * **desacoplamento:** Esta `StudentVM` contém **apenas** as propriedades que a UI precisa exibir ou editar (`LastName`, `FirstMidName`, `EnrollmentDate`).
+  * **Mapeamento Explícito:** No back-end, os dados são recebidos na `StudentVM`. Em seguida, o código mapeia manualmente (ou com uma ferramenta como o AutoMapper) os valores da VM para uma nova instância da entidade de domínio (`Student`) antes de salvá-la.
 
 Essa abordagem garante que apenas os dados estritamente necessários transitem entre a UI e o back-end, oferecendo o mais alto nível de segurança contra overposting e promovendo um design mais limpo e de baixo acoplamento.
 
@@ -204,8 +204,8 @@ Essa abordagem garante que apenas os dados estritamente necessários transitem e
 A página de edição de estudantes (`Edit.cshtml.cs`) foi refatorada para aplicar as mesmas boas práticas de segurança vistas na página de criação, além de introduzir otimizações de performance.
 
 * **Prevenção de Overposting na Edição:** O método `OnPostAsync` original era vulnerável, pois anexava diretamente a entidade vinda do formulário ao `DbContext`. A nova implementação é mais segura:
-    1.  Primeiro, a entidade original do estudante (`studentToUpdate`) é buscada no banco de dados usando seu `id`.
-    2.  Em seguida, o método `TryUpdateModelAsync` é utilizado para aplicar as alterações do formulário **apenas** nas propriedades permitidas (`FirstMidName`, `LastName`, `EnrollmentDate`) sobre a entidade que foi carregada do banco. Isso garante que um atacante não possa modificar propriedades que não estão no formulário.
+    1. Primeiro, a entidade original do estudante (`studentToUpdate`) é buscada no banco de dados usando seu `id`.
+    2. Em seguida, o método `TryUpdateModelAsync` é utilizado para aplicar as alterações do formulário **apenas** nas propriedades permitidas (`FirstMidName`, `LastName`, `EnrollmentDate`) sobre a entidade que foi carregada do banco. Isso garante que um atacante não possa modificar propriedades que não estão no formulário.
 
 * **Otimização de Consulta com `FindAsync`:** No método `OnGetAsync`, a consulta para buscar o estudante foi alterada de `FirstOrDefaultAsync` para `FindAsync(id)`. O método `FindAsync` é otimizado especificamente para buscar uma entidade pela sua chave primária. Ele primeiro verifica se a entidade já está sendo rastreada pelo `DbContext` e, se estiver, a retorna sem fazer uma nova consulta ao banco, tornando a operação mais eficiente para este cenário.
 
@@ -216,13 +216,28 @@ O Entity Framework Core, através do `DbContext`, atua como uma unidade de traba
 * **O Modelo Desconectado da Web:** Em aplicações web, cada requisição HTTP (ex: um GET para carregar a página de edição, seguido por um POST para salvar) cria uma nova instância do `DbContext`. Isso significa que o contexto que carregou os dados é destruído, e um novo contexto é criado para salvar os dados. A aplicação é "desconectada". Por causa disso, o desenvolvedor precisa informar explicitamente ao novo `DbContext` qual é o estado da entidade recebida do formulário.
 
 * **Principais Estados de uma Entidade:**
-    * **`Detached` (Desanexado):** O `DbContext` não está rastreando a entidade. Este é o estado de qualquer objeto recém-criado que ainda não foi adicionado ao contexto.
-    * **`Added` (Adicionado):** A entidade foi marcada para ser inserida no banco. `SaveChanges` gerará um `INSERT`.
-    * **`Unchanged` (Inalterado):** A entidade existe no banco e não sofreu modificações desde que foi carregada.
-    * **`Modified` (Modificado):** Pelo menos uma das propriedades da entidade foi alterada. `SaveChanges` gerará um `UPDATE`.
-    * **`Deleted` (Excluído):** A entidade foi marcada para ser removida do banco. `SaveChanges` gerará um `DELETE`.
+  * **`Detached` (Desanexado):** O `DbContext` não está rastreando a entidade. Este é o estado de qualquer objeto recém-criado que ainda não foi adicionado ao contexto.
+  * **`Added` (Adicionado):** A entidade foi marcada para ser inserida no banco. `SaveChanges` gerará um `INSERT`.
+  * **`Unchanged` (Inalterado):** A entidade existe no banco e não sofreu modificações desde que foi carregada.
+  * **`Modified` (Modificado):** Pelo menos uma das propriedades da entidade foi alterada. `SaveChanges` gerará um `UPDATE`.
+  * **`Deleted` (Excluído):** A entidade foi marcada para ser removida do banco. `SaveChanges` gerará um `DELETE`.
 
 Compreender e gerenciar esses estados é essencial para implementar corretamente as operações de CRUD em um ambiente web.
+
+### 4.12. Tratamento Robusto de Erros na Operação de Exclusão
+
+Para tornar a aplicação mais resiliente, a página de exclusão (`Delete.cshtml.cs`) foi refatorada para gerenciar falhas de banco de dados de forma elegante.
+
+* **Injeção de Dependência para Logging:** O serviço `ILogger` foi injetado no `PageModel`. Isso permite que exceções e outros eventos importantes sejam registrados, o que é fundamental para a depuração e monitoramento da aplicação em produção.
+
+* **Tratamento de `DbUpdateException`:** A lógica de exclusão no método `OnPostAsync` foi envolvida em um bloco `try-catch`. Isso captura especificamente a `DbUpdateException`, que pode ocorrer por várias razões, como problemas de rede transitórios ou violações de integridade referencial (tentar excluir um estudante que ainda tem matrículas, por exemplo).
+
+* **Feedback ao Usuário:** Em caso de falha na exclusão, em vez de travar, a aplicação agora:
+    1. Registra o erro detalhado usando o `_logger`.
+    2. Redireciona o usuário de volta para a mesma página de exclusão, mas passando um parâmetro na URL (`saveChangesError = true`).
+    3. O método `OnGetAsync` utiliza esse parâmetro para definir uma mensagem de erro amigável, que é então exibida na UI, instruindo o usuário a tentar novamente.
+
+Essa abordagem melhora significativamente a experiência do usuário e a estabilidade da aplicação ao lidar com falhas inesperadas na camada de dados.
 
 ## 5\. Comparativo Lado a Lado
 
