@@ -278,6 +278,14 @@ Para completar a funcionalidade da listagem, foi implementada a paginação, gar
   * **No PageModel (`Index.cshtml.cs`):** A lógica foi atualizada para receber o `pageIndex` da URL. O método `PaginatedList.CreateAsync` é chamado no final, após a aplicação dos filtros e da classificação, para obter a página de dados correta. O tamanho da página foi tornado configurável através do `appsettings.json`.
   * **Na View (`Index.cshtml`):** Foram adicionados os botões "Previous" e "Next". Eles são habilitados ou desabilitados dinamicamente com base nas propriedades `HasPreviousPage` and `HasNextPage`. Crucialmente, os Tag Helpers `asp-route-*` foram usados para garantir que os parâmetros de **classificação (`sortOrder`) e filtro (`currentFilter`) atuais sejam preservados** ao navegar entre as páginas.
 
+### 5.4. Agregação de Dados para a Página de Estatísticas (Sobre)
+
+Para exibir estatísticas sobre o corpo discente, foi criada a página "Sobre", que agrupa os estudantes pela data de matrícula e exibe a contagem de cada grupo.
+
+* **ViewModel Específico para a Tela (`EnrollmentDateGroup`):** Em vez de retornar os dados brutos, foi criado um ViewModel (`EnrollmentDateGroup.cs`) contendo apenas as duas propriedades necessárias para a exibição: `EnrollmentDate` e `StudentCount`. Essa abordagem (usar um modelo específico para a view) desacopla a camada de apresentação do modelo de domínio e é uma prática recomendada para clareza e segurança.
+
+* **Agregação Eficiente com LINQ `group by`:** A lógica de agregação foi implementada no `PageModel` (`About.cshtml.cs`) usando uma consulta LINQ com a cláusula `group student by student.EnrollmentDate`. Essa operação é traduzida pelo Entity Framework em uma consulta SQL `GROUP BY` eficiente, que é executada inteiramente no servidor de banco de dados. Como resultado, apenas os dados já agrupados e contados são transferidos para a aplicação, o que é extremamente performático, independentemente do número de estudantes no banco.
+
 ## 6\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
