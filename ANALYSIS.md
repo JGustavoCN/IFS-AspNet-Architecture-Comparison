@@ -250,8 +250,8 @@ A página de listagem de estudantes foi aprimorada para permitir que o usuário 
 * **Execução Adiada com `IQueryable`:** A chave para esta implementação é o uso de `IQueryable<Student>`. Em vez de buscar todos os dados do banco imediatamente, um `IQueryable` representa a *consulta* em si. A lógica no `PageModel` (`Index.cshtml.cs`) constrói dinamicamente a consulta adicionando cláusulas `OrderBy` ou `OrderByDescending` com base no parâmetro `sortOrder` recebido da URL. A consulta só é enviada ao banco de dados e executada no último momento, quando o método `.ToListAsync()` é chamado. Isso é extremamente eficiente, pois garante que uma única consulta otimizada seja gerada, contendo todas as regras de classificação.
 
 * **Gerenciamento de Estado na UI:**
-    * **No PageModel:** Propriedades como `NameSort` e `DateSort` foram adicionadas para controlar o estado atual da classificação. Elas usam operadores ternários para determinar qual será o próximo estado de classificação (ascendente ou descendente) quando um link for clicado.
-    * **Na View (`Index.cshtml`):** O `asp-route-sortOrder` Tag Helper foi utilizado nos links dos cabeçalhos das colunas. Ele passa o valor de `NameSort` ou `DateSort` como um parâmetro de consulta na URL, que é então lido pelo método `OnGetAsync` na próxima requisição, completando o ciclo.
+  * **No PageModel:** Propriedades como `NameSort` e `DateSort` foram adicionadas para controlar o estado atual da classificação. Elas usam operadores ternários para determinar qual será o próximo estado de classificação (ascendente ou descendente) quando um link for clicado.
+  * **Na View (`Index.cshtml`):** O `asp-route-sortOrder` Tag Helper foi utilizado nos links dos cabeçalhos das colunas. Ele passa o valor de `NameSort` ou `DateSort` como um parâmetro de consulta na URL, que é então lido pelo método `OnGetAsync` na próxima requisição, completando o ciclo.
 
 ### 5.2. Filtragem de Dados do Lado do Servidor
 
@@ -260,11 +260,23 @@ Para aprimorar a usabilidade da página, foi adicionada a funcionalidade de filt
 * **Implementação na View (`Index.cshtml`):** Um formulário (`<form>`) foi adicionado contendo uma caixa de texto (`<input type="text" name="SearchString">`) e um botão de envio. Crucialmente, o formulário utiliza `method="get"`, o que faz com que o termo de busca seja enviado como um parâmetro na query string da URL (ex: `.../Students?SearchString=Anand`). Essa abordagem é uma boa prática para operações de busca, pois não modifica dados no servidor e permite que os usuários salvem ou compartilhem a URL com os resultados da pesquisa.
 
 * **Lógica no PageModel (`Index.cshtml.cs`):**
-    * O método `OnGetAsync` foi atualizado para receber o parâmetro `searchString` da URL.
-    * A lógica de filtragem foi aplicada diretamente sobre o `IQueryable`, antes da lógica de classificação e da chamada final a `.ToListAsync()`.
-    * Foi utilizada uma cláusula `Where()` condicional (`if (!String.IsNullOrEmpty(searchString))`) que filtra os estudantes cujo `LastName` ou `FirstMidName` contenha a string de busca.
+  * O método `OnGetAsync` foi atualizado para receber o parâmetro `searchString` da URL.
+  * A lógica de filtragem foi aplicada diretamente sobre o `IQueryable`, antes da lógica de classificação e da chamada final a `.ToListAsync()`.
+  * Foi utilizada uma cláusula `Where()` condicional (`if (!String.IsNullOrEmpty(searchString))`) que filtra os estudantes cujo `LastName` ou `FirstMidName` contenha a string de busca.
 
 * **Vantagem de Performance (`IQueryable` vs. `IEnumerable`):** Ao aplicar o filtro `.Where()` sobre o `IQueryable`, garantimos que a filtragem ocorra **no lado do servidor de banco de dados**. O Entity Framework traduz a cláusula `Where` para uma cláusula `WHERE` em SQL. A alternativa, que seria buscar todos os dados e filtrá-los na memória da aplicação (com `IEnumerable`), seria drasticamente menos performática, especialmente com grandes volumes de dados.
+
+### 5.3. Paginação de Dados do Lado do Servidor
+
+Para completar a funcionalidade da listagem, foi implementada a paginação, garantindo que a aplicação permaneça performática mesmo com milhares de registros.
+
+* **Classe Reutilizável `PaginatedList<T>`:** Foi criada uma classe genérica, `PaginatedList<T>`, para encapsular a lógica de paginação. Esta classe herda de `List<T>` e adiciona propriedades essenciais para a UI, como `PageIndex`, `TotalPages`, `HasPreviousPage` e `HasNextPage`. O seu método estático `CreateAsync` é o responsável por executar a consulta paginada.
+
+* **Paginação Eficiente no Banco de Dados:** A eficiência da paginação é garantida pelo uso dos métodos `Skip()` e `Take()` do LINQ, que são aplicados diretamente ao `IQueryable`. Isso é traduzido pelo Entity Framework em uma consulta SQL otimizada (usando `OFFSET` e `FETCH` no SQL Server), garantindo que **apenas a página de dados solicitada** seja transferida do banco de dados para a aplicação.
+
+* **Integração com a UI:**
+  * **No PageModel (`Index.cshtml.cs`):** A lógica foi atualizada para receber o `pageIndex` da URL. O método `PaginatedList.CreateAsync` é chamado no final, após a aplicação dos filtros e da classificação, para obter a página de dados correta. O tamanho da página foi tornado configurável através do `appsettings.json`.
+  * **Na View (`Index.cshtml`):** Foram adicionados os botões "Previous" e "Next". Eles são habilitados ou desabilitados dinamicamente com base nas propriedades `HasPreviousPage` and `HasNextPage`. Crucialmente, os Tag Helpers `asp-route-*` foram usados para garantir que os parâmetros de **classificação (`sortOrder`) e filtro (`currentFilter`) atuais sejam preservados** ao navegar entre as páginas.
 
 ## 6\. Comparativo Lado a Lado
 
