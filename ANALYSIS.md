@@ -237,7 +237,7 @@ Para tornar a aplicação mais resiliente, a página de exclusão (`Delete.cshtm
     2. Redireciona o usuário de volta para a mesma página de exclusão, mas passando um parâmetro na URL (`saveChangesError = true`).
     3. O método `OnGetAsync` utiliza esse parâmetro para definir uma mensagem de erro amigável, que é então exibida na UI, instruindo o usuário a tentar novamente.
 
-Essa abordagem melhora significativamente a experiência do usuário e a estabilidade da aplicação ao lidar com falhas inesperadas na camada de dados.
+Essa abordagem melhora significativamente a experiência do usuário e a estabilidade da aplicação ao lidar com falhas inesperadas na camada de dado.
 
 ## 5\. Comparativo Lado a Lado
 
