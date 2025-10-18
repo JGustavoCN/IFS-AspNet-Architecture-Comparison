@@ -168,6 +168,16 @@ Um ponto de prática moderna fundamental, aplicado em ambas as implementações,
 
 A adoção consciente dessa abordagem é crucial para o desenvolvimento de aplicações web modernas, responsivas e escaláveis.
 
+### 4.7. Carregamento de Dados Relacionados (Eager Loading) na Página de Detalhes
+
+Para enriquecer a página de detalhes do estudante, foi necessário exibir a lista de suas matrículas e os respectivos cursos. Isso foi alcançado através da técnica de **Eager Loading** (carregamento adiantado) do Entity Framework Core, que consiste em carregar os dados relacionados em uma única consulta ao banco de dados.
+
+* **Implementação no PageModel (`Details.cshtml.cs`):** A consulta original, que buscava apenas o estudante (`_context.Students.FirstOrDefaultAsync(...)`), foi aprimorada.
+    * **`Include()` e `ThenInclude()`:** Foram encadeados os métodos `.Include(s => s.Enrollments)` para carregar a coleção de matrículas do estudante, e `.ThenInclude(e => e.Course)` para, dentro de cada matrícula, carregar a entidade do curso associado. Isso evita o problema de múltiplas consultas ao banco (conhecido como "N+1 query problem").
+    * **Otimização com `AsNoTracking()`:** Foi adicionado o método `.AsNoTracking()`, uma otimização de performance crucial para cenários de apenas leitura. Ele informa ao EF Core para não "rastrear" as entidades retornadas, pois elas não serão alteradas nesta página. Isso reduz a sobrecarga de gerenciamento de estado do `DbContext`.
+
+* **Exibição na View (`Details.cshtml`):** A página de detalhes foi atualizada para incluir uma tabela. Foi utilizado um loop `@foreach` para iterar sobre a propriedade `Model.Student.Enrollments` (que agora está populada) e exibir o título do curso (`item.Course.Title`) e a nota (`item.Grade`) de cada matrícula.
+
 ## 5\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
