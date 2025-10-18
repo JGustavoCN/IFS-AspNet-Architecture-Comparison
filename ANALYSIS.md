@@ -130,6 +130,18 @@ Um ponto de divergência importante em relação ao tutorial genérico ocorreu a
 
 * **Solução Adotada:** A decisão foi adaptar o método `OnModelCreating` para que ele respeitasse os nomes já definidos nos modelos via atributos. A linha foi alterada para `modelBuilder.Entity<Student>().ToTable("Estudantes")`. Esta abordagem resolveu o conflito e manteve a consistência do esquema do banco de dados, demonstrando na prática que a Fluent API (`OnModelCreating`) tem precedência sobre os Data Annotations e deve ser usada para reforçar — e não contradizer — o design do modelo.
 
+### 4.4. Inicialização da Aplicação e Criação do Banco de Dados
+
+O arquivo `Program.cs` é o coração da configuração de uma aplicação ASP.NET Core. Nele, foram realizados passos cruciais para integrar o Entity Framework e garantir um ambiente de desenvolvimento robusto.
+
+* **Injeção de Dependência (DI):** O princípio de DI é fundamental no ASP.NET Core. O serviço `SchoolContext` foi registrado no contêiner de DI com o comando `builder.Services.AddDbContext<SchoolContext>(...)`. Isso permite que qualquer outra parte da aplicação (como uma Razor Page) receba uma instância pronta do contexto do banco de dados através de seu construtor, sem precisar se preocupar em como criá-la.
+
+* **Middleware de Diagnóstico:** Para facilitar a depuração de erros relacionados ao banco de dados, o pacote `Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore` foi adicionado. O serviço `AddDatabaseDeveloperPageExceptionFilter()` foi registrado para fornecer páginas de erro detalhadas especificamente para falhas do Entity Framework durante o desenvolvimento.
+
+* **Criação Automática do Banco de Dados:** Foi implementado um bloco de código que, na inicialização da aplicação, obtém uma instância do `SchoolContext` e chama o método `context.Database.EnsureCreated()`. Esta é uma abordagem útil no início do desenvolvimento para criar o banco de dados e seu esquema a partir dos modelos de dados, sem a necessidade de executar migrações manualmente.
+
+* **Localização da UI:** Como um passo inicial para adaptar a aplicação ao contexto do IFS, os links de navegação no arquivo de layout principal (`_Layout.cshtml`) foram traduzidos para o português, alterando textos como "Students" para "Estudantes".
+
 ## 5\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |

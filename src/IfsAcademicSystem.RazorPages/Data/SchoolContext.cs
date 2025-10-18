@@ -14,6 +14,15 @@ namespace IfsAcademicSystem.RazorPages.Data
         {
         }
 
-        public DbSet<IfsAcademicSystem.RazorPages.Models.Student> Student { get; set; } = default!;
+        public DbSet<Student> Students { get; set; }
+        public DbSet<Enrollment> Enrollments { get; set; }
+        public DbSet<Course> Courses { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Course>().ToTable("Cursos");
+            modelBuilder.Entity<Enrollment>().ToTable("Matriculas");
+            modelBuilder.Entity<Student>().ToTable("Estudantes");
+        }
     }
 }
