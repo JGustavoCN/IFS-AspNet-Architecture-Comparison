@@ -155,6 +155,19 @@ Para garantir que a aplicação pudesse ser testada com um conjunto de dados con
 
 * **Integração com a Aplicação:** A chamada para o inicializador foi ativada no arquivo `Program.cs`, removendo o comentário da linha `DbInitializer.Initialize(context)`. Isso garante que o processo de seeding ocorra automaticamente durante a inicialização da aplicação, logo após a criação do banco de dados pelo `EnsureCreated()`.
 
+### 4.6. Adoção de Programação Assíncrona no Acesso a Dados
+
+Um ponto de prática moderna fundamental, aplicado em ambas as implementações, é o uso de programação assíncrona para todas as operações de banco de dados.
+
+* **Por que usar Assincronia?** Em uma aplicação web, as threads do servidor são um recurso limitado. Operações de E/S (Entrada/Saída), como consultar um banco de dados, são lentas. No modelo síncrono, uma thread fica bloqueada, aguardando a resposta do banco sem fazer nada. No modelo **assíncrono**, a thread é liberada de volta para o servidor enquanto a operação do banco de dados está em andamento, permitindo que ela atenda outras requisições. Isso aumenta a eficiência e a capacidade da aplicação de lidar com um volume maior de tráfego.
+
+* **Implementação Prática:** A assincronia foi implementada através de um conjunto de palavras-chave e métodos padrão no C# e Entity Framework Core:
+  * **`async` e `await`:** A palavra-chave `async` no método (ex: `public async Task OnGetAsync()`) permite o uso do operador `await`, que é o ponto onde o método "pausa" e libera a thread até que a operação de longa duração (a consulta ao banco) seja concluída.
+  * **`Task`:** Os métodos assíncronos retornam um objeto `Task` (ou `Task<T>`), que representa o trabalho em andamento.
+  * **Métodos do EF Core:** Foram utilizadas as versões assíncronas dos métodos do Entity Framework, como `ToListAsync()`, `FirstOrDefaultAsync()` e `SaveChangesAsync()`, que são projetados para trabalhar com o padrão `async/await`.
+
+A adoção consciente dessa abordagem é crucial para o desenvolvimento de aplicações web modernas, responsivas e escaláveis.
+
 ## 5\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
