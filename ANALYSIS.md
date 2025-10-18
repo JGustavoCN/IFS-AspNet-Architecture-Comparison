@@ -209,6 +209,21 @@ A página de edição de estudantes (`Edit.cshtml.cs`) foi refatorada para aplic
 
 * **Otimização de Consulta com `FindAsync`:** No método `OnGetAsync`, a consulta para buscar o estudante foi alterada de `FirstOrDefaultAsync` para `FindAsync(id)`. O método `FindAsync` é otimizado especificamente para buscar uma entidade pela sua chave primária. Ele primeiro verifica se a entidade já está sendo rastreada pelo `DbContext` e, se estiver, a retorna sem fazer uma nova consulta ao banco, tornando a operação mais eficiente para este cenário.
 
+### 4.11. Gerenciamento de Estado de Entidades no EF Core
+
+O Entity Framework Core, através do `DbContext`, atua como uma unidade de trabalho que rastreia o estado de cada entidade que ele gerencia. Esse rastreamento é o que permite ao método `SaveChangesAsync` saber exatamente quais comandos SQL (INSERT, UPDATE, DELETE) devem ser executados no banco de dados.
+
+* **O Modelo Desconectado da Web:** Em aplicações web, cada requisição HTTP (ex: um GET para carregar a página de edição, seguido por um POST para salvar) cria uma nova instância do `DbContext`. Isso significa que o contexto que carregou os dados é destruído, e um novo contexto é criado para salvar os dados. A aplicação é "desconectada". Por causa disso, o desenvolvedor precisa informar explicitamente ao novo `DbContext` qual é o estado da entidade recebida do formulário.
+
+* **Principais Estados de uma Entidade:**
+    * **`Detached` (Desanexado):** O `DbContext` não está rastreando a entidade. Este é o estado de qualquer objeto recém-criado que ainda não foi adicionado ao contexto.
+    * **`Added` (Adicionado):** A entidade foi marcada para ser inserida no banco. `SaveChanges` gerará um `INSERT`.
+    * **`Unchanged` (Inalterado):** A entidade existe no banco e não sofreu modificações desde que foi carregada.
+    * **`Modified` (Modificado):** Pelo menos uma das propriedades da entidade foi alterada. `SaveChanges` gerará um `UPDATE`.
+    * **`Deleted` (Excluído):** A entidade foi marcada para ser removida do banco. `SaveChanges` gerará um `DELETE`.
+
+Compreender e gerenciar esses estados é essencial para implementar corretamente as operações de CRUD em um ambiente web.
+
 ## 5\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
