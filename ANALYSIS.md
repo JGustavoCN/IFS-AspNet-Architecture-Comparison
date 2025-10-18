@@ -110,6 +110,26 @@ Este processo resultou na criação automática de todas as páginas Razor neces
 
 3. **Tipos de Referência Anuláveis:** Foi necessária a desativação da diretiva `<Nullable>enable</Nullable>` no arquivo `.csproj` devido a limitações das ferramentas de scaffolding do Visual Studio, que não suportam completamente este recurso moderno do C\#.
 
+### 4.3. Evolução do Contexto de Dados e Refatoração
+
+Após a geração automática do código, o próximo passo crucial foi evoluir o `SchoolContext` de um contexto que gerenciava apenas a entidade `Student` para um que abrange todo o modelo de dados da aplicação. Esta etapa envolveu uma refatoração significativa e a introdução de configurações mais explícitas.
+
+As principais mudanças foram:
+
+* **Expansão do DbContext:** Foram adicionadas as propriedades `DbSet<Course>` e `DbSet<Enrollment>` ao `SchoolContext`, informando ao Entity Framework para gerenciar também as tabelas de Cursos e Matrículas.
+
+* **Refatoração para o Plural (Singular to Plural):** Seguindo uma convenção de codificação comum, a propriedade `DbSet<Student> Student` foi renomeada para `DbSet<Student> Students`. Como um `DbSet` representa uma coleção de entidades, o uso do plural torna o código mais legível e intuitivo.
+
+* **Aplicação da Refatoração no Código Existente:** A renomeação da propriedade `DbSet` quebrou todo o código gerado pelo scaffolding que a utilizava. Foi necessário executar uma busca e substituição em toda a solução (usando a ferramenta "Substituir em Arquivos" do Visual Studio) para trocar todas as ocorrências de `_context.Student` por `_context.Students`, garantindo que o projeto voltasse a compilar.
+
+* **Configuração Explícita com `OnModelCreating`:** Foi introduzido o método `OnModelCreating`, que permite configurar o modelo de dados usando a Fluent API. Isso oferece um controle mais detalhado sobre o esquema do banco de dados do que os Data Annotations sozinhos.
+
+#### Destaque: Resolução de Conflito de Nomenclatura de Tabela
+
+Um ponto de divergência importante em relação ao tutorial genérico ocorreu aqui. O projeto já utilizava o atributo `[Table("Estudantes")]` no modelo `Student` para definir o nome da tabela em português. O código do tutorial, por outro lado, sugeria `modelBuilder.Entity<Student>().ToTable("Student")` no método `OnModelCreating`, criando um conflito direto.
+
+* **Solução Adotada:** A decisão foi adaptar o método `OnModelCreating` para que ele respeitasse os nomes já definidos nos modelos via atributos. A linha foi alterada para `modelBuilder.Entity<Student>().ToTable("Estudantes")`. Esta abordagem resolveu o conflito e manteve a consistência do esquema do banco de dados, demonstrando na prática que a Fluent API (`OnModelCreating`) tem precedência sobre os Data Annotations e deve ser usada para reforçar — e não contradizer — o design do modelo.
+
 ## 5\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |

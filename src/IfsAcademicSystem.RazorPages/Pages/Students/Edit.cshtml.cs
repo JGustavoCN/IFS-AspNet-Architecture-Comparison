@@ -30,7 +30,7 @@ namespace IfsAcademicSystem.RazorPages.Pages.Students
                 return NotFound();
             }
 
-            var student =  await _context.Student.FirstOrDefaultAsync(m => m.ID == id);
+            var student =  await _context.Students.FirstOrDefaultAsync(m => m.ID == id);
             if (student == null)
             {
                 return NotFound();
@@ -71,7 +71,7 @@ namespace IfsAcademicSystem.RazorPages.Pages.Students
 
         private bool StudentExists(int id)
         {
-            return _context.Student.Any(e => e.ID == id);
+            return _context.Students.Any(e => e.ID == id);
         }
     }
 }

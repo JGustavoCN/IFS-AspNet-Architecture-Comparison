@@ -23,7 +23,7 @@ namespace IfsAcademicSystem.RazorPages.Pages.Students
 
         public async Task OnGetAsync()
         {
-            Student = await _context.Student.ToListAsync();
+            Student = await _context.Students.ToListAsync();
         }
     }
 }
