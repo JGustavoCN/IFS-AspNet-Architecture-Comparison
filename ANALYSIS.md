@@ -142,6 +142,19 @@ O arquivo `Program.cs` é o coração da configuração de uma aplicação ASP.N
 
 * **Localização da UI:** Como um passo inicial para adaptar a aplicação ao contexto do IFS, os links de navegação no arquivo de layout principal (`_Layout.cshtml`) foram traduzidos para o português, alterando textos como "Students" para "Estudantes".
 
+### 4.5. Propagação de Dados Iniciais (Database Seeding)
+
+Para garantir que a aplicação pudesse ser testada com um conjunto de dados consistente, foi implementado um mecanismo de "seeding". Esta técnica consiste em popular o banco de dados com dados iniciais logo após sua criação.
+
+* **Classe `DbInitializer`:** Foi criada uma classe estática (`DbInitializer.cs`) dedicada exclusivamente a essa responsabilidade. Centralizar essa lógica em uma classe separada mantém o arquivo `Program.cs` mais limpo e organizado.
+
+* **Lógica de Preenchimento:** O método `Initialize` dentro desta classe executa as seguintes ações:
+    1. **Verificação de Existência:** Primeiramente, ele verifica se já existem registros na tabela de estudantes com `context.Students.Any()`. Isso torna a operação **idempotente**, ou seja, ela pode ser executada várias vezes sem o risco de duplicar os dados. Se o banco já foi populado, o método simplesmente encerra.
+    2. **Criação de Dados:** Caso o banco esteja vazio, são criados arrays de `Student`, `Course` e `Enrollment`.
+    3. **Persistência:** Os dados são salvos no banco de dados em lote para cada entidade usando `context.AddRange()` seguido de `context.SaveChanges()`.
+
+* **Integração com a Aplicação:** A chamada para o inicializador foi ativada no arquivo `Program.cs`, removendo o comentário da linha `DbInitializer.Initialize(context)`. Isso garante que o processo de seeding ocorra automaticamente durante a inicialização da aplicação, logo após a criação do banco de dados pelo `EnsureCreated()`.
+
 ## 5\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
