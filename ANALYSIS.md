@@ -173,10 +173,19 @@ A adoção consciente dessa abordagem é crucial para o desenvolvimento de aplic
 Para enriquecer a página de detalhes do estudante, foi necessário exibir a lista de suas matrículas e os respectivos cursos. Isso foi alcançado através da técnica de **Eager Loading** (carregamento adiantado) do Entity Framework Core, que consiste em carregar os dados relacionados em uma única consulta ao banco de dados.
 
 * **Implementação no PageModel (`Details.cshtml.cs`):** A consulta original, que buscava apenas o estudante (`_context.Students.FirstOrDefaultAsync(...)`), foi aprimorada.
-    * **`Include()` e `ThenInclude()`:** Foram encadeados os métodos `.Include(s => s.Enrollments)` para carregar a coleção de matrículas do estudante, e `.ThenInclude(e => e.Course)` para, dentro de cada matrícula, carregar a entidade do curso associado. Isso evita o problema de múltiplas consultas ao banco (conhecido como "N+1 query problem").
-    * **Otimização com `AsNoTracking()`:** Foi adicionado o método `.AsNoTracking()`, uma otimização de performance crucial para cenários de apenas leitura. Ele informa ao EF Core para não "rastrear" as entidades retornadas, pois elas não serão alteradas nesta página. Isso reduz a sobrecarga de gerenciamento de estado do `DbContext`.
+  * **`Include()` e `ThenInclude()`:** Foram encadeados os métodos `.Include(s => s.Enrollments)` para carregar a coleção de matrículas do estudante, e `.ThenInclude(e => e.Course)` para, dentro de cada matrícula, carregar a entidade do curso associado. Isso evita o problema de múltiplas consultas ao banco (conhecido como "N+1 query problem").
+  * **Otimização com `AsNoTracking()`:** Foi adicionado o método `.AsNoTracking()`, uma otimização de performance crucial para cenários de apenas leitura. Ele informa ao EF Core para não "rastrear" as entidades retornadas, pois elas não serão alteradas nesta página. Isso reduz a sobrecarga de gerenciamento de estado do `DbContext`.
 
 * **Exibição na View (`Details.cshtml`):** A página de detalhes foi atualizada para incluir uma tabela. Foi utilizado um loop `@foreach` para iterar sobre a propriedade `Model.Student.Enrollments` (que agora está populada) e exibir o título do curso (`item.Course.Title`) e a nota (`item.Grade`) de cada matrícula.
+
+### 4.8. Segurança na Criação de Entidades e Prevenção de Overposting
+
+Um ponto crítico de segurança foi abordado ao refatorar o método `OnPostAsync` da página de criação de estudantes. O código gerado inicialmente era vulnerável a ataques de **overposting**. Isso ocorre quando um usuário mal-intencionado envia mais dados do que o formulário exibe, potencialmente alterando propriedades sensíveis que não deveriam ser modificadas pelo usuário (como um campo `IsAdmin`, por exemplo).
+
+* **Solução com `TryUpdateModelAsync`:** Para mitigar essa vulnerabilidade, o método foi reescrito para usar `TryUpdateModelAsync`. Esta abordagem é mais segura porque:
+    1. **Cria uma Entidade Vazia:** Uma nova instância `emptyStudent` é criada em vez de usar a propriedade `Student` vinculada diretamente (`[BindProperty]`).
+    2. **Lista de Permissões Explícita:** `TryUpdateModelAsync` foi chamado com uma lista explícita das propriedades que são permitidas para atualização a partir dos dados do formulário (`s => s.FirstMidName, s => s.LastName, s => s.EnrollmentDate`).
+    3. **Segurança Garantida:** Qualquer outro campo enviado na requisição que não esteja nesta lista de permissões é simplesmente ignorado. Isso garante que apenas os dados esperados sejam mapeados para a nova entidade antes de serem salvos no banco de dados, fechando a brecha de segurança de overposting.
 
 ## 5\. Comparativo Lado a Lado
 
