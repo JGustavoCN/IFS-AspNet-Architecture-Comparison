@@ -356,6 +356,16 @@ A entidade `Course` foi atualizada para refletir relacionamentos mais complexos 
 
 * **Relação Muitos-para-Muitos:** A adição da propriedade de navegação `ICollection<Instructor>` na classe `Course`, em conjunto com a propriedade `ICollection<Course>` na classe `Instructor`, estabelece uma relação **muitos-para-muitos**. O Entity Framework Core gerencia essa relação de forma inteligente, criando automaticamente uma tabela de junção (join table) no banco de dados (por exemplo, `CourseInstructor`) para conectar as duas entidades.
 
+### 6.6. Finalização do Modelo com a Entidade Department e Controle de Concorrência
+
+A entidade `Department` foi a última peça a ser adicionada ao modelo de dados, trazendo consigo conceitos importantes de mapeamento e segurança.
+
+* **Mapeamento de Tipo de Dados Específico:** Na propriedade `Budget`, o atributo `[Column(TypeName = "money")]` foi utilizado para instruir o Entity Framework a mapear o tipo `decimal` do C# para o tipo de dados `money` do SQL Server. Essa é uma prática recomendada para campos monetários, garantindo a precisão e a semântica correta no banco de dados.
+
+* **Relacionamento Opcional:** A propriedade de chave estrangeira `InstructorID` foi definida como um tipo anulável (`int?`). Isso modela corretamente a regra de negócio de que um departamento pode ter um administrador, mas não é obrigatório.
+
+* **Controle de Concorrência Otimista:** Como uma melhoria de robustez, o atributo `[ConcurrencyCheck]` foi adicionado à propriedade `Budget`. Este atributo instrui o EF Core a verificar se o valor do orçamento no banco de dados mudou desde que foi lido, antes de salvar uma nova alteração. Isso previne que dois usuários editem o mesmo dado simultaneamente e um sobrescreva o trabalho do outro (conflito de concorrência).
+
 ## 7\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
