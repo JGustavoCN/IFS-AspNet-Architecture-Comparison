@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IfsAcademicSystem.RazorPages.Models
@@ -8,30 +10,31 @@ namespace IfsAcademicSystem.RazorPages.Models
     {
         public int ID { get; set; }
 
-        [Display(Name = "Sobrenome")]
-        [Required(ErrorMessage = "O campo Sobrenome é obrigatório.")]
+        [RegularExpression(@"^[A-Z]+[a-zA-Z\s]*$", ErrorMessage = "O nome deve conter apenas letras.")]
         [StringLength(50, MinimumLength = 2, ErrorMessage = "O Sobrenome deve ter entre 2 e 50 caracteres.")]
+        [Required(ErrorMessage = "O campo Sobrenome é obrigatório.")]
+        [Display(Name = "Sobrenome")]
         public string LastName { get; set; }
 
-        [Display(Name = "Nome")]
+        [RegularExpression(@"^[A-Z]+[a-zA-Z\s]*$", ErrorMessage = "O nome deve conter apenas letras.")]
+        [StringLength(50, ErrorMessage = "O Nome não pode ter mais de 50 caracteres.")]
         [Required(ErrorMessage = "O campo Nome é obrigatório.")]
-        [StringLength(50, ErrorMessage = "O Nome não pode exceder 50 caracteres.")]
-        [Column("FirstName")] // Mapeia para uma coluna chamada "FirstName" no banco
+        [Column("FirstName")] 
+        [Display(Name = "Nome")]
         public string FirstMidName { get; set; }
 
-        [Display(Name = "Data da Matrícula")]
-        [DataType(DataType.Date)] // Gera um input de data na UI
+        [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+        [Display(Name = "Data da Matrícula")]
         public DateTime EnrollmentDate { get; set; }
 
-        [NotMapped] // Esta propriedade não vira uma coluna no banco de dados
+        [NotMapped]
         [Display(Name = "Nome Completo")]
         public string FullName
         {
             get { return $"{FirstMidName} {LastName}"; }
         }
 
-        // Propriedade de Navegação para a relação com Matrículas
         public ICollection<Enrollment> Enrollments { get; set; }
     }
 }

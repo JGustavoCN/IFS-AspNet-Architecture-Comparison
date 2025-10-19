@@ -313,6 +313,22 @@ Cada migração gerada pelo EF Core é composta por vários artefatos que trabal
 
 * **O Instantâneo do Modelo (`SchoolContextModelSnapshot.cs`):** Este arquivo é um registro do estado atual do seu modelo de dados no momento em que a última migração foi criada. Quando você executa `Add-Migration`, o EF Core compara o seu modelo de dados atual com este arquivo de snapshot para detectar as alterações e gerar o código para os métodos `Up()` e `Down()` da nova migração.
 
+### 6.2. Refinando o Modelo de Dados com Anotações e Migração
+
+Para aprimorar o modelo de dados, foram aplicados diversos atributos de "Data Annotation" na classe `Student`. Essas anotações adicionam metadados que controlam a validação, a formatação da UI e o mapeamento do banco de dados.
+
+* **Regras de Validação:** Atributos como `[Required]` e `[StringLength(50)]` foram adicionados para impor regras de negócio, como campos obrigatórios e comprimentos máximos de string. Isso habilita a validação automática tanto no lado do servidor quanto no lado do cliente.
+
+* **Formatação e Exibição na UI:**
+    * **`[Display(Name = "...")]`:** Foi usado para definir rótulos amigáveis para os campos nos formulários (ex: "Sobrenome" em vez de "LastName").
+    * **`[DataType(DataType.Date)]` e `[DisplayFormat]`:** Foram usados em conjunto na propriedade `EnrollmentDate` para indicar ao navegador que ele deve renderizar um seletor de data e para formatar a data explicitamente, sem exibir a hora.
+
+* **Mapeamento do Banco de Dados:**
+    * **`[Column("FirstName")]`:** Este atributo foi usado para renomear a coluna do banco de dados de `FirstMidName` para `FirstName`, melhorando a clareza do esquema sem alterar o nome da propriedade no código C#.
+    * **Propriedade Calculada:** A propriedade `FullName` foi mantida como uma propriedade calculada (sem um `set`) para exibir o nome completo na UI, sem a necessidade de criar uma coluna correspondente no banco de dados.
+
+* **Aplicação das Alterações com uma Nova Migração:** Como essas anotações alteraram a estrutura esperada do banco de dados, o modelo de dados ficou fora de sincronia. Para resolver isso, uma nova migração (`Add-Migration ColumnFirstName`) foi criada e aplicada (`Update-Database`), atualizando o esquema do banco de dados (alterando o tipo de `nvarchar(MAX)` para `nvarchar(50)` e renomeando a coluna) sem perda de dados.
+
 ## 7\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
