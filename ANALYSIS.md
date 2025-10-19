@@ -384,6 +384,17 @@ Com todas as entidades do modelo de dados criadas, o `SchoolContext` foi finaliz
 
 * **Configuração de Comportamento de Exclusão:** Para aumentar a integridade dos dados, a Fluent API foi usada para configurar o comportamento de exclusão em cascata. Com a regra `.OnDelete(DeleteBehavior.Restrict)`, o sistema agora impede que um `Department` seja excluído se houver `Course`s associados a ele, evitando a perda acidental de dados.
 
+### 6.11. Atualização da Propagação de Dados (Seeding) e Recriação do Banco
+
+Com o modelo de dados completo, a classe `DbInitializer` foi expandida para popular todas as novas entidades, incluindo `Instructors`, `Departments`, `OfficeAssignments`, e as relações entre elas (como atribuições de cursos a instrutores). Para garantir que o banco de dados refletisse perfeitamente o modelo final e fosse populado com os dados corretos, um ciclo de recriação foi executado:
+
+1. O banco de dados de desenvolvimento foi descartado (`Drop-Database`).
+2. A migração inicial existente foi removida (`Remove-Migration`) para limpar o histórico.
+3. Uma nova migração `InitialCreate` foi gerada, capturando o estado final de todo o modelo de dados.
+4. O banco de dados foi recriado a partir desta nova migração (`Update-Database`), garantindo um esquema 100% sincronizado.
+
+Ao executar a aplicação, o `DbInitializer` populou com sucesso o banco de dados recém-criado com um conjunto de dados completo e realista.
+
 ## 7\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
