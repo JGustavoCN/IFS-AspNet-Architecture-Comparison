@@ -346,6 +346,16 @@ A entidade `OfficeAssignment` foi criada para modelar uma relação de **um-para
   * Como o nome `InstructorID` corresponde à convenção de chave estrangeira para a entidade `Instructor`, o Entity Framework Core a configura simultaneamente como uma **chave estrangeira (FK)**.
   * Quando a PK de uma tabela é também a FK para outra, o EF Core estabelece uma relação de um-para-um. Isso garante a integridade dos dados, pois não é possível criar uma `OfficeAssignment` sem que ela esteja vinculada a um `Instructor` existente.
 
+### 6.5. Aprimoramento da Entidade Course e Relação Muitos-para-Muitos
+
+A entidade `Course` foi atualizada para refletir relacionamentos mais complexos e para otimizar as operações de dados.
+
+* **Chave Primária Gerada pela Aplicação:** O atributo `[DatabaseGenerated(DatabaseGeneratedOption.None)]` foi aplicado à chave primária `CourseID`. Isso informa ao Entity Framework que os valores para esta chave serão fornecidos pela aplicação (por exemplo, um código de curso definido pelo usuário, como "MAT101"), em vez de serem gerados automaticamente pelo banco de dados.
+
+* **Chave Estrangeira Explícita (`DepartmentID`):** A propriedade `DepartmentID` foi adicionada explicitamente ao modelo. Embora o EF Core possa criar "propriedades de sombra" para chaves estrangeiras, incluí-las explicitamente no modelo torna as operações de atualização mais simples e eficientes, pois permite alterar a relação de um curso com um departamento apenas definindo o valor do ID, sem a necessidade de carregar a entidade `Department` inteira.
+
+* **Relação Muitos-para-Muitos:** A adição da propriedade de navegação `ICollection<Instructor>` na classe `Course`, em conjunto com a propriedade `ICollection<Course>` na classe `Instructor`, estabelece uma relação **muitos-para-muitos**. O Entity Framework Core gerencia essa relação de forma inteligente, criando automaticamente uma tabela de junção (join table) no banco de dados (por exemplo, `CourseInstructor`) para conectar as duas entidades.
+
 ## 7\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
