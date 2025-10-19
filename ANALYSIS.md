@@ -366,6 +366,14 @@ A entidade `Department` foi a última peça a ser adicionada ao modelo de dados,
 
 * **Controle de Concorrência Otimista:** Como uma melhoria de robustez, o atributo `[ConcurrencyCheck]` foi adicionado à propriedade `Budget`. Este atributo instrui o EF Core a verificar se o valor do orçamento no banco de dados mudou desde que foi lido, antes de salvar uma nova alteração. Isso previne que dois usuários editem o mesmo dado simultaneamente e um sobrescreva o trabalho do outro (conflito de concorrência).
 
+### 6.7. Modelando a Entidade de Associação com Payload (Enrollment)
+
+A entidade `Enrollment` (Matrícula) desempenha um papel crucial no modelo, atuando como a **entidade de associação** que resolve a relação muitos-para-muitos entre `Student` e `Course`.
+
+* **Join Entity com Payload:** Diferente de uma relação muitos-para-muitos pura (onde o EF Core pode criar uma tabela de junção oculta), a relação entre estudantes e cursos precisava armazenar uma informação adicional: a **Nota (`Grade`)**. Por isso, foi necessário criar a entidade `Enrollment` explicitamente. Ela não apenas conecta `Student` e `Course` através das chaves estrangeiras `StudentID` e `CourseID`, mas também carrega esse dado extra, conhecido como "payload".
+
+* **Enumeração para `Grade`:** Para garantir a consistência dos dados de notas, foi utilizada uma enumeração (`enum Grade { A, B, C, D, F }`), restringindo os valores possíveis e tornando o código mais legível e seguro contra erros de digitação.
+
 ## 7\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
