@@ -393,7 +393,7 @@ Com o modelo de dados completo, a classe `DbInitializer` foi expandida para popu
 3. Uma nova migração `InitialCreate` foi gerada, capturando o estado final de todo o modelo de dados.
 4. O banco de dados foi recriado a partir desta nova migração (`Update-Database`), garantindo um esquema 100% sincronizado.
 
-Ao executar a aplicação, o `DbInitializer` populou com sucesso o banco de dados recém-criado com um conjunto de dados completo e realista.
+Ao executar a aplicação, o `DbInitializer` populou com sucesso o banco de dados recém-criado com um conjunto de dados completo e realistas.
 
 ## 7\. Comparativo Lado a Lado
 
