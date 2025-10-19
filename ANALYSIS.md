@@ -286,7 +286,22 @@ Para exibir estatísticas sobre o corpo discente, foi criada a página "Sobre", 
 
 * **Agregação Eficiente com LINQ `group by`:** A lógica de agregação foi implementada no `PageModel` (`About.cshtml.cs`) usando uma consulta LINQ com a cláusula `group student by student.EnrollmentDate`. Essa operação é traduzida pelo Entity Framework em uma consulta SQL `GROUP BY` eficiente, que é executada inteiramente no servidor de banco de dados que é o SQLServer. Como resultado, apenas os dados já agrupados e contados são transferidos para a aplicação, o que é extremamente performático, independentemente do número de estudantes no banco.
 
-## 6\. Comparativo Lado a Lado
+## 6. Evolução do Banco de Dados com EF Core Migrations
+
+Inicialmente, o projeto utilizou o método `EnsureCreated()` para criar o banco de dados. Embora seja útil para o desenvolvimento rápido e prototipagem, essa abordagem tem uma limitação crítica: ela não consegue evoluir um banco de dados existente. Qualquer alteração no modelo de dados exigiria a exclusão manual do banco, resultando na perda de todos os dados.
+
+Para preparar a aplicação para um cenário mais realista, onde os dados precisam ser preservados, foi adotado o **EF Core Migrations**.
+
+* **Por que usar Migrations?** Migrations é o recurso que permite que o esquema do banco de dados evolua junto com as alterações no modelo de dados da aplicação, **sem perder os dados existentes**. Ele funciona como um sistema de controle de versão para o banco de dados.
+
+* **Processo de Implementação:** A transição foi feita em três passos:
+    1.  **Remoção do `EnsureCreated()`:** A chamada `context.Database.EnsureCreated()` foi removida do arquivo `Program.cs`, pois é incompatível com o Migrations.
+    2.  **Criação da Migração Inicial:** O comando `Add-Migration InitialCreate` foi executado. Ele inspecionou os modelos de dados (`Student`, `Course`, etc.) e gerou um arquivo de migração contendo o código C# necessário para criar o esquema de banco de dados correspondente.
+    3.  **Aplicação da Migração:** O comando `Update-Database` foi executado para aplicar a migração, criando o banco de dados e, crucialmente, uma tabela especial chamada `__EFMigrationsHistory`. Esta tabela é usada pelo EF Core para rastrear quais migrações já foram aplicadas ao banco, garantindo que cada alteração seja aplicada apenas uma vez.
+
+Com o Migrations configurado, a aplicação está agora pronta para evoluir de forma segura e controlada.
+
+## 7\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
 | :--- | :--- | :--- |
@@ -297,6 +312,6 @@ Para exibir estatísticas sobre o corpo discente, foi criada a página "Sobre", 
 | **Ideal para...** | Aplicações centradas em formulários, operações CRUD e cenários onde a página é a unidade principal de funcionalidade. | Aplicações complexas com regras de negócio ricas, APIs web, e cenários que exigem alta testabilidade e flexibilidade. |
 | **Reutilização de Lógica** | *(Preencha com sua análise, ex: via View Components, classes base para PageModel)* | *(Preencha com sua análise, ex: Controllers podem servir múltiplas Actions e ser usados para APIs e UI)* |
 
-## 7\. Conclusão
+## 8\. Conclusão
 
 *Aqui você escreverá sua conclusão pessoal sobre qual abordagem se encaixou melhor para este tipo de projeto e por quê, considerando os pontos levantados na organização do código, na camada de dados e no comparativo geral.*
