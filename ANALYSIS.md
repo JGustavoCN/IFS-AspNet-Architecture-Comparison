@@ -374,6 +374,16 @@ A entidade `Enrollment` (Matrícula) desempenha um papel crucial no modelo, atua
 
 * **Enumeração para `Grade`:** Para garantir a consistência dos dados de notas, foi utilizada uma enumeração (`enum Grade { A, B, C, D, F }`), restringindo os valores possíveis e tornando o código mais legível e seguro contra erros de digitação.
 
+### 6.8. Configuração Final do DbContext com Fluent API
+
+Com todas as entidades do modelo de dados criadas, o `SchoolContext` foi finalizado para incluir os `DbSet`s de todas as novas entidades (`Department`, `Instructor`, `OfficeAssignment`) e para realizar configurações de relacionamento avançadas usando a **Fluent API** no método `OnModelCreating`.
+
+* **Fluent API vs. Atributos:** Enquanto os Atributos (Data Annotations) são úteis para aplicar regras diretamente nas classes de modelo, a Fluent API oferece um local centralizado e mais poderoso para configurar o mapeamento. A abordagem adotada no projeto foi híbrida: usar atributos para validações e formatações simples e a Fluent API para configurações de relacionamento complexas que os atributos não suportam.
+
+* **Configuração de Relação Muitos-para-Muitos:** A relação muitos-para-muitos "pura" (sem uma entidade de junção com payload) entre `Course` e `Instructor` foi configurada explicitamente no `OnModelCreating`. Isso instrui o EF Core a criar a tabela de junção necessária automaticamente.
+
+* **Configuração de Comportamento de Exclusão:** Para aumentar a integridade dos dados, a Fluent API foi usada para configurar o comportamento de exclusão em cascata. Com a regra `.OnDelete(DeleteBehavior.Restrict)`, o sistema agora impede que um `Department` seja excluído se houver `Course`s associados a ele, evitando a perda acidental de dados.
+
 ## 7\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
