@@ -329,6 +329,14 @@ Para aprimorar o modelo de dados, foram aplicados diversos atributos de "Data An
 
 * **Aplicação das Alterações com uma Nova Migração:** Como essas anotações alteraram a estrutura esperada do banco de dados, o modelo de dados ficou fora de sincronia. Para resolver isso, uma nova migração (`Add-Migration ColumnFirstName`) foi criada e aplicada (`Update-Database`), atualizando o esquema do banco de dados (alterando o tipo de `nvarchar(MAX)` para `nvarchar(50)` e renomeando a coluna) sem perda de dados.
 
+### 6.3. Expansão do Modelo com a Entidade Instructor
+
+O modelo de dados foi expandido com a adição da entidade `Instructor`, que foi aprimorada com os mesmos padrões de validação e localização em português das outras entidades. Esta nova classe introduz dois tipos importantes de relacionamentos, representados por suas propriedades de navegação:
+
+* **Relação Um-para-Muitos (`ICollection<Course>`):** A propriedade `Courses` é uma coleção, estabelecendo que um instrutor pode ministrar vários cursos.
+
+* **Relação Um-para-Um (`OfficeAssignment`):** A propriedade `OfficeAssignment` representa uma relação onde um instrutor pode ter no máximo um escritório. A propriedade conterá uma única entidade `OfficeAssignment` ou será nula se nenhum escritório for atribuído, modelando um relacionamento opcional de um para um.
+
 ## 7\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
