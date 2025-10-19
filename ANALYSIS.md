@@ -295,9 +295,9 @@ Para preparar a aplicação para um cenário mais realista, onde os dados precis
 * **Por que usar Migrations?** Migrations é o recurso que permite que o esquema do banco de dados evolua junto com as alterações no modelo de dados da aplicação, **sem perder os dados existentes**. Ele funciona como um sistema de controle de versão para o banco de dados.
 
 * **Processo de Implementação:** A transição foi feita em três passos:
-    1.  **Remoção do `EnsureCreated()`:** A chamada `context.Database.EnsureCreated()` foi removida do arquivo `Program.cs`, pois é incompatível com o Migrations.
-    2.  **Criação da Migração Inicial:** O comando `Add-Migration InitialCreate` foi executado. Ele inspecionou os modelos de dados (`Student`, `Course`, etc.) e gerou um arquivo de migração contendo o código C# necessário para criar o esquema de banco de dados correspondente.
-    3.  **Aplicação da Migração:** O comando `Update-Database` foi executado para aplicar a migração, criando o banco de dados e, crucialmente, uma tabela especial chamada `__EFMigrationsHistory`. Esta tabela é usada pelo EF Core para rastrear quais migrações já foram aplicadas ao banco, garantindo que cada alteração seja aplicada apenas uma vez.
+    1. **Remoção do `EnsureCreated()`:** A chamada `context.Database.EnsureCreated()` foi removida do arquivo `Program.cs`, pois é incompatível com o Migrations.
+    2. **Criação da Migração Inicial:** O comando `Add-Migration InitialCreate` foi executado. Ele inspecionou os modelos de dados (`Student`, `Course`, etc.) e gerou um arquivo de migração contendo o código C# necessário para criar o esquema de banco de dados correspondente.
+    3. **Aplicação da Migração:** O comando `Update-Database` foi executado para aplicar a migração, criando o banco de dados e, crucialmente, uma tabela especial chamada `__EFMigrationsHistory`. Esta tabela é usada pelo EF Core para rastrear quais migrações já foram aplicadas ao banco, garantindo que cada alteração seja aplicada apenas uma vez.
 
 Com o Migrations configurado, a aplicação está agora pronta para evoluir de forma segura e controlada.
 
@@ -306,8 +306,8 @@ Com o Migrations configurado, a aplicação está agora pronta para evoluir de f
 Cada migração gerada pelo EF Core é composta por vários artefatos que trabalham em conjunto para garantir a consistência entre o código e o banco de dados.
 
 * **Métodos `Up()` e `Down()`:** O coração de uma migração está no arquivo `<timestamp>_<MigrationName>.cs`.
-    * **`Up()`:** Contém o código para **aplicar** as alterações ao banco de dados (criar tabelas, adicionar colunas, etc.). É executado pelo comando `Update-Database`.
-    * **`Down()`:** Contém o código para **reverter** as alterações, restaurando o esquema ao estado anterior. Isso permite "desfazer" uma migração, se necessário.
+  * **`Up()`:** Contém o código para **aplicar** as alterações ao banco de dados (criar tabelas, adicionar colunas, etc.). É executado pelo comando `Update-Database`.
+  * **`Down()`:** Contém o código para **reverter** as alterações, restaurando o esquema ao estado anterior. Isso permite "desfazer" uma migração, se necessário.
 
 * **Tabela de Histórico (`__EFMigrationsHistory`):** Ao aplicar a primeira migração, o EF Core cria esta tabela no banco de dados. Ela funciona como um log, registrando o ID de cada migração que já foi aplicada com sucesso. Isso impede que a mesma migração seja executada mais de uma vez e garante que as migrações sejam aplicadas na ordem correta.
 
