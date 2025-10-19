@@ -320,12 +320,12 @@ Para aprimorar o modelo de dados, foram aplicados diversos atributos de "Data An
 * **Regras de Validação:** Atributos como `[Required]` e `[StringLength(50)]` foram adicionados para impor regras de negócio, como campos obrigatórios e comprimentos máximos de string. Isso habilita a validação automática tanto no lado do servidor quanto no lado do cliente.
 
 * **Formatação e Exibição na UI:**
-    * **`[Display(Name = "...")]`:** Foi usado para definir rótulos amigáveis para os campos nos formulários (ex: "Sobrenome" em vez de "LastName").
-    * **`[DataType(DataType.Date)]` e `[DisplayFormat]`:** Foram usados em conjunto na propriedade `EnrollmentDate` para indicar ao navegador que ele deve renderizar um seletor de data e para formatar a data explicitamente, sem exibir a hora.
+  * **`[Display(Name = "...")]`:** Foi usado para definir rótulos amigáveis para os campos nos formulários (ex: "Sobrenome" em vez de "LastName").
+  * **`[DataType(DataType.Date)]` e `[DisplayFormat]`:** Foram usados em conjunto na propriedade `EnrollmentDate` para indicar ao navegador que ele deve renderizar um seletor de data e para formatar a data explicitamente, sem exibir a hora.
 
 * **Mapeamento do Banco de Dados:**
-    * **`[Column("FirstName")]`:** Este atributo foi usado para renomear a coluna do banco de dados de `FirstMidName` para `FirstName`, melhorando a clareza do esquema sem alterar o nome da propriedade no código C#.
-    * **Propriedade Calculada:** A propriedade `FullName` foi mantida como uma propriedade calculada (sem um `set`) para exibir o nome completo na UI, sem a necessidade de criar uma coluna correspondente no banco de dados.
+  * **`[Column("FirstName")]`:** Este atributo foi usado para renomear a coluna do banco de dados de `FirstMidName` para `FirstName`, melhorando a clareza do esquema sem alterar o nome da propriedade no código C#.
+  * **Propriedade Calculada:** A propriedade `FullName` foi mantida como uma propriedade calculada (sem um `set`) para exibir o nome completo na UI, sem a necessidade de criar uma coluna correspondente no banco de dados.
 
 * **Aplicação das Alterações com uma Nova Migração:** Como essas anotações alteraram a estrutura esperada do banco de dados, o modelo de dados ficou fora de sincronia. Para resolver isso, uma nova migração (`Add-Migration ColumnFirstName`) foi criada e aplicada (`Update-Database`), atualizando o esquema do banco de dados (alterando o tipo de `nvarchar(MAX)` para `nvarchar(50)` e renomeando a coluna) sem perda de dados.
 
@@ -336,6 +336,15 @@ O modelo de dados foi expandido com a adição da entidade `Instructor`, que foi
 * **Relação Um-para-Muitos (`ICollection<Course>`):** A propriedade `Courses` é uma coleção, estabelecendo que um instrutor pode ministrar vários cursos.
 
 * **Relação Um-para-Um (`OfficeAssignment`):** A propriedade `OfficeAssignment` representa uma relação onde um instrutor pode ter no máximo um escritório. A propriedade conterá uma única entidade `OfficeAssignment` ou será nula se nenhum escritório for atribuído, modelando um relacionamento opcional de um para um.
+
+### 6.4. Modelando a Relação Um-para-Um com OfficeAssignment
+
+A entidade `OfficeAssignment` foi criada para modelar uma relação de **um-para-zero-ou-um** com a entidade `Instructor`. Isso significa que um instrutor pode ter um, e apenas um, escritório, ou pode não ter nenhum.
+
+* **Chave Primária como Chave Estrangeira:** A chave para implementar este relacionamento está no design da classe `OfficeAssignment`.
+  * O atributo `[Key]` foi aplicado à propriedade `InstructorID`. Isso a designa como a **chave primária (PK)** da tabela `OfficeAssignment`.
+  * Como o nome `InstructorID` corresponde à convenção de chave estrangeira para a entidade `Instructor`, o Entity Framework Core a configura simultaneamente como uma **chave estrangeira (FK)**.
+  * Quando a PK de uma tabela é também a FK para outra, o EF Core estabelece uma relação de um-para-um. Isso garante a integridade dos dados, pois não é possível criar uma `OfficeAssignment` sem que ela esteja vinculada a um `Instructor` existente.
 
 ## 7\. Comparativo Lado a Lado
 
