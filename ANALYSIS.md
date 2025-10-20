@@ -429,7 +429,7 @@ Como uma alternativa mais performática ao Eager Loading com `.Include()`, foi i
 
 A página de Instrutores é a mais complexa da aplicação, implementando um padrão de UI "mestre-detalhe-detalhe" que exibe três níveis de informação: a lista de instrutores, os cursos ministrados pelo instrutor selecionado e os alunos matriculados no curso selecionado.
 
-* **ViewModel Agregador (`InstructorIndexData`):** Para gerenciar os dados das três tabelas (`Instructors`, `Courses`, `Enrollments`) em uma única página, foi criado o ViewModel `InstructorIndexData`. Essa classe atua como um contêiner para transportar todas as informações necessárias entre o `PageModel` e a `View`.
+* **ViewModel Agregador (`InstructorIndexData`):** Para gerenciar os dados das três tabelas (`Instructors`, `Courses`, `Enrollments`) em uma única página, foi criado o ViewModel `InstructorIndexData`. Essas classes atuam como um contêiner para transportar todas as informações necessárias entre o `PageModel` e a `View`.
 
 * **Estratégia de Carregamento Híbrida:** Uma estratégia de carregamento de dados em múltiplos estágios foi utilizada para otimizar a performance:
     1. **Carregamento Adiantado Inicial:** Na carga inicial da página, uma única consulta complexa é executada para buscar **todos** os instrutores. Essa consulta utiliza `Include` e `ThenInclude` para carregar adiantadamente os dados relacionados de `OfficeAssignment` e `Courses` (incluindo o `Department` de cada curso).
