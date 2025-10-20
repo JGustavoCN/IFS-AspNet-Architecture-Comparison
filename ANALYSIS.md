@@ -395,7 +395,17 @@ Com o modelo de dados completo, a classe `DbInitializer` foi expandida para popu
 
 Ao executar a aplicação, o `DbInitializer` populou com sucesso o banco de dados recém-criado com um conjunto de dados completo e realistas.
 
-## 7\. Comparativo Lado a Lado
+## 7. Estratégias de Carregamento de Dados Relacionados
+
+O Entity Framework Core oferece diferentes estratégias para carregar dados de entidades relacionadas (por exemplo, carregar o `Department` de um `Course`). A escolha da estratégia correta tem um impacto direto na performance da aplicação, principalmente no número de consultas executadas no banco de dados.
+
+* **Carregamento Adiantado (Eager Loading):** Esta é a abordagem mais comum e, geralmente, a mais recomendada para aplicações web. Os dados relacionados são carregados na mesma consulta inicial da entidade principal, utilizando os métodos `.Include()` e `.ThenInclude()`. Isso resulta em uma única consulta (geralmente com `JOIN`s) que traz todos os dados necessários de uma só vez, evitando o problema de múltiplas idas e vindas ao banco. Foi a técnica utilizada na página de detalhes do estudante para carregar suas matrículas e cursos.
+
+* **Carregamento Explícito (Explicit Loading):** Neste cenário, os dados relacionados não são carregados inicialmente. Eles são buscados "sob demanda" através de uma chamada explícita no código, como `_context.Entry(course).Reference(c => c.Department).LoadAsync()`. Isso resulta em uma segunda consulta ao banco de dados. É útil em cenários onde os dados relacionados só são necessários condicionalmente.
+
+* **Carregamento Lento (Lazy Loading):** Com o Lazy Loading, os dados relacionados são carregados automaticamente na primeira vez que a propriedade de navegação é acessada no código. Embora pareça conveniente, esta abordagem é **perigosa** em aplicações web, pois pode levar facilmente ao problema de "N+1 queries" (uma consulta para a lista de entidades + N consultas para os dados relacionados de cada entidade dentro de um loop), causando sérios problemas de performance. Por padrão, o Lazy Loading vem desabilitado no EF Core e seu uso deve ser feito com muito cuidado.
+
+## 8\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
 | :--- | :--- | :--- |
@@ -406,6 +416,6 @@ Ao executar a aplicação, o `DbInitializer` populou com sucesso o banco de dado
 | **Ideal para...** | Aplicações centradas em formulários, operações CRUD e cenários onde a página é a unidade principal de funcionalidade. | Aplicações complexas com regras de negócio ricas, APIs web, e cenários que exigem alta testabilidade e flexibilidade. |
 | **Reutilização de Lógica** | *(Preencha com sua análise, ex: via View Components, classes base para PageModel)* | *(Preencha com sua análise, ex: Controllers podem servir múltiplas Actions e ser usados para APIs e UI)* |
 
-## 8\. Conclusão
+## 9\. Conclusão
 
 *Aqui você escreverá sua conclusão pessoal sobre qual abordagem se encaixou melhor para este tipo de projeto e por quê, considerando os pontos levantados na organização do código, na camada de dados e no comparativo geral.*
