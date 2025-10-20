@@ -438,7 +438,7 @@ A página de Instrutores é a mais complexa da aplicação, implementando um pad
 
 * **Melhorias na Interface do Usuário:**
   * **Rotas Amigáveis:** A diretiva `@page "{id:int?}"` foi utilizada para transformar os parâmetros da URL de query strings (ex: `?id=1`) para segmentos de rota (ex: `/Instructors/1`), resultando em URLs mais limpas.
-  * **Feedback Visual:** Foi implementada uma lógica na View que aplica a classe CSS `table-success` à linha (`<tr>`) do instrutor e do curso atualmente selecionados, fornecendo um feedback visual claro para o usuário.
+  * **Feedback Visual:** Foi implementada uma lógica na View que aplica a classe CSS `table-success` à linha (`<tr>`) do instrutor e do curso atualmente selecionados, fornecendo um feedback visual claro para os usuários.
 
 ## 8\. Comparativo Lado a Lado
 
