@@ -17,13 +17,13 @@ namespace IfsAcademicSystem.RazorPages.Models
 
         [DataType(DataType.Currency)]
         [Column(TypeName = "money")]
-        [DisplayFormat(DataFormatString = "{0:C2}")]
+        [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = true)]
         [Required(ErrorMessage = "O campo Orçamento é obrigatório.")]
         [Display(Name = "Orçamento")]
         public decimal Budget { get; set; }
 
         [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         [Required(ErrorMessage = "O campo Data de Início é obrigatório.")]
         [Display(Name = "Data de Início")]
         public DateTime StartDate { get; set; }
@@ -31,6 +31,7 @@ namespace IfsAcademicSystem.RazorPages.Models
         public int? InstructorID { get; set; }
 
         [Timestamp]
+        //[Display(Name = "Token")]
         public byte[] ConcurrencyToken { get; set; }
 
         [Display(Name = "Administrador")]

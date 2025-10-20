@@ -484,6 +484,18 @@ A abordagem escolhida, recomendada para SQL Server, foi o uso de um token de con
 
 * **Aplicação via Migração:** A adição da propriedade `ConcurrencyToken` alterou o modelo de dados, exigindo a criação (`Add-Migration RowVersion`) e aplicação (`Update-Database`) de uma nova migração para adicionar a coluna `rowversion` à tabela `Departamentos` no banco de dados.
 
+### 9.2. Tratamento da `DbUpdateConcurrencyException` na UI
+
+A lógica para lidar com a exceção foi implementada na página de Edição de Departamentos (`Edit.cshtml.cs`).
+
+* **Captura da Exceção:** No método `OnPostAsync`, a chamada `await _context.SaveChangesAsync()` foi envolvida em um bloco `try-catch` para capturar a `DbUpdateConcurrencyException`.
+* **Feedback ao Usuário:** Quando um conflito é detectado, a aplicação informa ao usuário de forma clara:
+    1.  Uma mensagem de erro geral é exibida, explicando que o registro foi modificado por outra pessoa.
+    2.  Para cada campo que possui um valor diferente entre a versão do cliente e a do banco, uma mensagem de erro de validação específica é adicionada, mostrando o valor atual no banco (ex: "Valor atual no banco: R$ 123.456,78").
+    3.  A página é recarregada, permitindo que o usuário veja as diferenças e decida se deseja salvar suas alterações novamente.
+
+* **Interface do Usuário (`Edit.cshtml`):** Para que o controle de concorrência funcione, um campo oculto (`<input type="hidden">`) para o `ConcurrencyToken` foi adicionado ao formulário, garantindo que o valor original do token seja enviado de volta ao servidor no `POST`.
+
 ## 10\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
