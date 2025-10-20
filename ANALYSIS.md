@@ -475,26 +475,32 @@ Para garantir a integridade dos dados em um ambiente multiusuário, foi implemen
 A abordagem escolhida, recomendada para SQL Server, foi o uso de um token de concorrência no nível da linha.
 
 * **Modificação do Modelo:** Foi adicionada uma nova propriedade à entidade `Department`:
+
     ```csharp
     [Timestamp]
     public byte[] ConcurrencyToken { get; set; }
     ```
-* **Funcionamento:** O atributo `[Timestamp]` instrui o Entity Framework a mapear esta propriedade para uma coluna do tipo `rowversion` no banco de dados. O próprio SQL Server atualiza automaticamente o valor desta coluna toda vez que a linha é modificada.
-* **Detecção do Conflito:** Quando o EF Core executa um comando `UPDATE` ou `DELETE`, ele inclui o valor original do `ConcurrencyToken` na cláusula `WHERE`. Se a linha foi alterada por outro usuário nesse meio tempo, os tokens não corresponderão, o comando não afetará nenhuma linha, e o EF Core lançará uma `DbUpdateConcurrencyException`. A aplicação pode então capturar essa exceção e informar ao usuário que ocorreu um conflito, permitindo que ele decida como proceder.
 
-* **Aplicação via Migração:** A adição da propriedade `ConcurrencyToken` alterou o modelo de dados, exigindo a criação (`Add-Migration RowVersion`) e aplicação (`Update-Database`) de uma nova migração para adicionar a coluna `rowversion` à tabela `Departamentos` no banco de dados.
+* **Funcionamento:** O atributo `[Timestamp]` instrui o Entity Framework a mapear esta propriedade para uma coluna do tipo `rowversion` no banco de dados. O próprio SQL Server atualiza automaticamente o valor desta coluna a cada `UPDATE` na linha.
+* **Detecção do Conflito:** Quando o EF Core executa um comando `UPDATE` ou `DELETE`, ele inclui o valor original do `ConcurrencyToken` na cláusula `WHERE`. Se a linha foi alterada por outro usuário nesse meio tempo, os tokens não corresponderão, o comando não afetará nenhuma linha, e o EF Core lançará uma `DbUpdateConcurrencyException`.
 
-### 9.2. Tratamento da `DbUpdateConcurrencyException` na UI
+* **Aplicação via Migração:** A adição da propriedade `ConcurrencyToken` alterou o modelo de dados, exigindo a criação (`Add-Migration RowVersion`) e aplicação (`Update-Database`) de uma nova migração para adicionar a coluna `rowversion` à tabela `Departamentos`.
 
-A lógica para lidar com a exceção foi implementada na página de Edição de Departamentos (`Edit.cshtml.cs`).
+### 9.2. Tratamento da `DbUpdateConcurrencyException` na Interface do Usuário
 
-* **Captura da Exceção:** No método `OnPostAsync`, a chamada `await _context.SaveChangesAsync()` foi envolvida em um bloco `try-catch` para capturar a `DbUpdateConcurrencyException`.
-* **Feedback ao Usuário:** Quando um conflito é detectado, a aplicação informa ao usuário de forma clara:
-    1.  Uma mensagem de erro geral é exibida, explicando que o registro foi modificado por outra pessoa.
-    2.  Para cada campo que possui um valor diferente entre a versão do cliente e a do banco, uma mensagem de erro de validação específica é adicionada, mostrando o valor atual no banco (ex: "Valor atual no banco: R$ 123.456,78").
-    3.  A página é recarregada, permitindo que o usuário veja as diferenças e decida se deseja salvar suas alterações novamente.
+A lógica para lidar com a exceção foi implementada nas páginas de Edição e Exclusão de Departamentos.
 
-* **Interface do Usuário (`Edit.cshtml`):** Para que o controle de concorrência funcione, um campo oculto (`<input type="hidden">`) para o `ConcurrencyToken` foi adicionado ao formulário, garantindo que o valor original do token seja enviado de volta ao servidor no `POST`.
+* **Captura da Exceção:** No método `OnPostAsync` de ambas as páginas, a chamada `await _context.SaveChangesAsync()` foi envolvida em um bloco `try-catch` para capturar a `DbUpdateConcurrencyException`.
+
+* **Feedback ao Usuário na Edição:** Quando um conflito é detectado na página `EditModel`, a aplicação:
+    1. Obtém os valores que o usuário tentou salvar (valores do cliente) e os valores que estão atualmente no banco de dados.
+    2. Adiciona uma mensagem de erro geral ao `ModelState`, explicando o conflito.
+    3. Para cada campo conflitante, adiciona uma mensagem de erro específica, mostrando o valor atual no banco (ex: "Valor atual no banco: R$ 123.456,78").
+    4. Recarrega a página, permitindo que o usuário veja as diferenças e decida se deseja salvar suas alterações novamente.
+
+* **Feedback ao Usuário na Exclusão:** Quando um conflito é detectado na página `DeleteModel`, a aplicação redireciona o usuário de volta para a mesma página de exclusão, passando um parâmetro de erro na URL, que exibe uma mensagem clara informando que o registro foi alterado e a exclusão foi cancelada.
+
+* **Interface do Usuário (`Edit.cshtml` e `Delete.cshtml`):** Para que o controle de concorrência funcione, um campo oculto (`<input type="hidden">`) para o `ConcurrencyToken` foi adicionado aos formulários, garantindo que o valor original do token seja enviado de volta ao servidor no `POST`.
 
 ## 10\. Comparativo Lado a Lado
 
