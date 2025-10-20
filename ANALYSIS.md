@@ -405,6 +405,16 @@ O Entity Framework Core oferece diferentes estratégias para carregar dados de e
 
 * **Carregamento Lento (Lazy Loading):** Com o Lazy Loading, os dados relacionados são carregados automaticamente na primeira vez que a propriedade de navegação é acessada no código. Embora pareça conveniente, esta abordagem é **perigosa** em aplicações web, pois pode levar facilmente ao problema de "N+1 queries" (uma consulta para a lista de entidades + N consultas para os dados relacionados de cada entidade dentro de um loop), causando sérios problemas de performance. Por padrão, o Lazy Loading vem desabilitado no EF Core e seu uso deve ser feito com muito cuidado.
 
+### 7.1. Implementando Eager Loading na Listagem de Cursos
+
+Após gerar o scaffold para as páginas de `Course`, a listagem inicial exibia apenas o `DepartmentID`, que não é uma informação útil para o usuário. Para corrigir isso e exibir o nome do departamento, a estratégia de **Eager Loading** foi aplicada.
+
+* **Implementação no PageModel (`Courses/Index.cshtml.cs`):** A consulta LINQ no método `OnGetAsync` foi modificada para incluir explicitamente os dados do departamento relacionado.
+    * **`.Include(c => c.Department)`:** Este método foi encadeado à consulta, instruindo o Entity Framework a carregar a entidade `Department` associada a cada `Course` na mesma consulta ao banco de dados.
+    * **Otimização com `.AsNoTracking()`:** Como a página de listagem é um cenário de apenas leitura (os dados não são alterados), o método `.AsNoTracking()` foi adicionado. Isso informa ao EF Core para não rastrear as entidades retornadas, resultando em uma consulta mais rápida e com menor consumo de memória.
+
+* **Exibição na View (`Courses/Index.cshtml`):** Com a entidade `Department` agora carregada, a view foi atualizada para exibir a propriedade `Name` do departamento, em vez do ID. A alteração foi simples, mudando a exibição para `@Html.DisplayFor(modelItem => item.Department.Name)`.
+
 ## 8\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
