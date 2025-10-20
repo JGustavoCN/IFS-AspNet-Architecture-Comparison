@@ -415,6 +415,16 @@ Após gerar o scaffold para as páginas de `Course`, a listagem inicial exibia a
 
 * **Exibição na View (`Courses/Index.cshtml`):** Com a entidade `Department` agora carregada, a view foi atualizada para exibir a propriedade `Name` do departamento, em vez do ID. A alteração foi simples, mudando a exibição para `@Html.DisplayFor(modelItem => item.Department.Name)`.
 
+### 7.2. Otimização com Projeção para um ViewModel (usando .Select())
+
+Como uma alternativa mais performática ao Eager Loading com `.Include()`, foi implementada a técnica de **projeção** na listagem de cursos. Essa abordagem consiste em transformar os resultados de uma consulta LINQ diretamente em um objeto de transferência de dados (DTO), ou **ViewModel**, que contém apenas os dados necessários para a tela.
+
+* **Benefícios de Performance:**
+    1.  **Consultas mais Leves:** Em vez de carregar a entidade `Course` inteira e a entidade `Department` inteira, a consulta com `.Select()` gera um SQL que busca **apenas** as colunas necessárias (CourseID, Title, Credits e Department.Name). Isso reduz a quantidade de dados trafegados do banco para a aplicação.
+    2.  **Sem Rastreamento (No-Tracking):** Como o resultado da consulta não é uma entidade de domínio (é um `CourseViewModel`), o `DbContext` não precisa rastrear as mudanças. Isso elimina a sobrecarga de gerenciamento de estado, tornando a consulta inerentemente mais rápida, similar ao efeito de usar `.AsNoTracking()`.
+
+* **Implementação:** Foi criado um `CourseViewModel` contendo somente as propriedades a serem exibidas. A consulta no `PageModel` foi reescrita para usar `.Select(p => new CourseViewModel { ... })`, projetando os dados das entidades `Course` e `Department` diretamente para a nova classe antes de materializar a lista com `.ToListAsync()`.
+
 ## 8\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |

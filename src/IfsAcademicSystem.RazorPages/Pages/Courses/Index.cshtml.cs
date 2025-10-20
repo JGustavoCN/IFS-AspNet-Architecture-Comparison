@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using IfsAcademicSystem.RazorPages.Data;
+using IfsAcademicSystem.RazorPages.Models;
+using IfsAcademicSystem.RazorPages.Models.SchoolViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using IfsAcademicSystem.RazorPages.Data;
-using IfsAcademicSystem.RazorPages.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace IfsAcademicSystem.RazorPages.Pages.Courses
 {
@@ -19,14 +20,18 @@ namespace IfsAcademicSystem.RazorPages.Pages.Courses
             _context = context;
         }
 
-        public IList<Course> Courses { get;set; } = default!;
+        public IList<CourseViewModel> CoursesVM { get; set; }
 
         public async Task OnGetAsync()
         {
-            Courses = await _context.Courses
-                .Include(c => c.Department)
-                .AsNoTracking()
-                .ToListAsync();
+            CoursesVM = await _context.Courses
+                .Select(p => new CourseViewModel
+                {
+                    CourseID = p.CourseID,
+                    Title = p.Title,
+                    Credits = p.Credits,
+                    DepartmentName = p.Department.Name // Projeta apenas o nome do departamento
+                }).ToListAsync();
         }
     }
 }
