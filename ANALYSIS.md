@@ -410,8 +410,8 @@ O Entity Framework Core oferece diferentes estratégias para carregar dados de e
 Após gerar o scaffold para as páginas de `Course`, a listagem inicial exibia apenas o `DepartmentID`, que não é uma informação útil para o usuário. Para corrigir isso e exibir o nome do departamento, a estratégia de **Eager Loading** foi aplicada.
 
 * **Implementação no PageModel (`Courses/Index.cshtml.cs`):** A consulta LINQ no método `OnGetAsync` foi modificada para incluir explicitamente os dados do departamento relacionado.
-    * **`.Include(c => c.Department)`:** Este método foi encadeado à consulta, instruindo o Entity Framework a carregar a entidade `Department` associada a cada `Course` na mesma consulta ao banco de dados.
-    * **Otimização com `.AsNoTracking()`:** Como a página de listagem é um cenário de apenas leitura (os dados não são alterados), o método `.AsNoTracking()` foi adicionado. Isso informa ao EF Core para não rastrear as entidades retornadas, resultando em uma consulta mais rápida e com menor consumo de memória.
+  * **`.Include(c => c.Department)`:** Este método foi encadeado à consulta, instruindo o Entity Framework a carregar a entidade `Department` associada a cada `Course` na mesma consulta ao banco de dados.
+  * **Otimização com `.AsNoTracking()`:** Como a página de listagem é um cenário de apenas leitura (os dados não são alterados), o método `.AsNoTracking()` foi adicionado. Isso informa ao EF Core para não rastrear as entidades retornadas, resultando em uma consulta mais rápida e com menor consumo de memória.
 
 * **Exibição na View (`Courses/Index.cshtml`):** Com a entidade `Department` agora carregada, a view foi atualizada para exibir a propriedade `Name` do departamento, em vez do ID. A alteração foi simples, mudando a exibição para `@Html.DisplayFor(modelItem => item.Department.Name)`.
 
@@ -420,10 +420,25 @@ Após gerar o scaffold para as páginas de `Course`, a listagem inicial exibia a
 Como uma alternativa mais performática ao Eager Loading com `.Include()`, foi implementada a técnica de **projeção** na listagem de cursos. Essa abordagem consiste em transformar os resultados de uma consulta LINQ diretamente em um objeto de transferência de dados (DTO), ou **ViewModel**, que contém apenas os dados necessários para a tela.
 
 * **Benefícios de Performance:**
-    1.  **Consultas mais Leves:** Em vez de carregar a entidade `Course` inteira e a entidade `Department` inteira, a consulta com `.Select()` gera um SQL que busca **apenas** as colunas necessárias (CourseID, Title, Credits e Department.Name). Isso reduz a quantidade de dados trafegados do banco para a aplicação.
-    2.  **Sem Rastreamento (No-Tracking):** Como o resultado da consulta não é uma entidade de domínio (é um `CourseViewModel`), o `DbContext` não precisa rastrear as mudanças. Isso elimina a sobrecarga de gerenciamento de estado, tornando a consulta inerentemente mais rápida, similar ao efeito de usar `.AsNoTracking()`.
+    1. **Consultas mais Leves:** Em vez de carregar a entidade `Course` inteira e a entidade `Department` inteira, a consulta com `.Select()` gera um SQL que busca **apenas** as colunas necessárias (CourseID, Title, Credits e Department.Name). Isso reduz a quantidade de dados trafegados do banco para a aplicação.
+    2. **Sem Rastreamento (No-Tracking):** Como o resultado da consulta não é uma entidade de domínio (é um `CourseViewModel`), o `DbContext` não precisa rastrear as mudanças. Isso elimina a sobrecarga de gerenciamento de estado, tornando a consulta inerentemente mais rápida, similar ao efeito de usar `.AsNoTracking()`.
 
 * **Implementação:** Foi criado um `CourseViewModel` contendo somente as propriedades a serem exibidas. A consulta no `PageModel` foi reescrita para usar `.Select(p => new CourseViewModel { ... })`, projetando os dados das entidades `Course` e `Department` diretamente para a nova classe antes de materializar a lista com `.ToListAsync()`.
+
+### 7.3. Implementação da Página Mestre-Detalhe de Instrutores
+
+A página de Instrutores é a mais complexa da aplicação, implementando um padrão de UI "mestre-detalhe-detalhe" que exibe três níveis de informação: a lista de instrutores, os cursos ministrados pelo instrutor selecionado e os alunos matriculados no curso selecionado.
+
+* **ViewModel Agregador (`InstructorIndexData`):** Para gerenciar os dados das três tabelas (`Instructors`, `Courses`, `Enrollments`) em uma única página, foi criado o ViewModel `InstructorIndexData`. Essa classe atua como um contêiner para transportar todas as informações necessárias entre o `PageModel` e a `View`.
+
+* **Estratégia de Carregamento Híbrida:** Uma estratégia de carregamento de dados em múltiplos estágios foi utilizada para otimizar a performance:
+    1. **Carregamento Adiantado Inicial:** Na carga inicial da página, uma única consulta complexa é executada para buscar **todos** os instrutores. Essa consulta utiliza `Include` e `ThenInclude` para carregar adiantadamente os dados relacionados de `OfficeAssignment` e `Courses` (incluindo o `Department` de cada curso).
+    2. **Filtragem em Memória:** Quando um instrutor é selecionado, a lista de seus cursos é obtida **filtrando os dados já carregados em memória**, evitando uma nova consulta ao banco de dados para buscar os cursos.
+    3. **Carregamento Sob Demanda:** Apenas quando um curso é selecionado, uma **nova consulta** é executada no banco de dados para buscar especificamente as matrículas (`Enrollments`) daquele curso, incluindo os dados dos alunos (`Student`) relacionados.
+
+* **Melhorias na Interface do Usuário:**
+  * **Rotas Amigáveis:** A diretiva `@page "{id:int?}"` foi utilizada para transformar os parâmetros da URL de query strings (ex: `?id=1`) para segmentos de rota (ex: `/Instructors/1`), resultando em URLs mais limpas.
+  * **Feedback Visual:** Foi implementada uma lógica na View que aplica a classe CSS `table-success` à linha (`<tr>`) do instrutor e do curso atualmente selecionados, fornecendo um feedback visual claro para o usuário.
 
 ## 8\. Comparativo Lado a Lado
 
