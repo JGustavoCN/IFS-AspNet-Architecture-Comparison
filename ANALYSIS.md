@@ -440,7 +440,24 @@ A página de Instrutores é a mais complexa da aplicação, implementando um pad
   * **Rotas Amigáveis:** A diretiva `@page "{id:int?}"` foi utilizada para transformar os parâmetros da URL de query strings (ex: `?id=1`) para segmentos de rota (ex: `/Instructors/1`), resultando em URLs mais limpas.
   * **Feedback Visual:** Foi implementada uma lógica na View que aplica a classe CSS `table-success` à linha (`<tr>`) do instrutor e do curso atualmente selecionados, fornecendo um feedback visual claro para os usuários.
 
-## 8\. Comparativo Lado a Lado
+## 8. Refatoração e Boas Práticas na UI
+
+Com as funcionalidades básicas implementadas, o foco se voltou para a melhoria da qualidade do código e da experiência do usuário, especialmente nas páginas de Cursos.
+
+### 8.1. Reutilização de Código com Classes Base de PageModel
+
+Para evitar a duplicação de lógica, foi implementado o padrão de classe base para os PageModels. A funcionalidade de popular a lista suspensa de departamentos, necessária tanto na página de Criação quanto na de Edição de Cursos, foi centralizada em uma nova classe.
+
+* **`DepartmentNamePageModel`:** Foi criada uma classe base que contém o método `PopulateDepartmentsDropDownList`. Este método é responsável por buscar os departamentos no banco de dados e criar um `SelectList` para a UI.
+* **Herança:** As classes `CreateModel` e `EditModel` da pasta `Courses` foram modificadas para herdar de `DepartmentNamePageModel`, ganhando acesso imediato à lógica de popular a lista suspensa e eliminando código repetido (princípio DRY - Don't Repeat Yourself).
+
+### 8.2. Uso de Modelos Fortemente Tipados na UI
+
+Para aumentar a segurança e a manutenibilidade do código, a passagem de dados para a lista suspensa foi alterada de um método fracamente tipado para um fortemente tipado.
+
+* **De `ViewData` para Propriedade de Modelo:** Em vez de usar `ViewData["DepartmentID"]`, que depende de uma string "mágica", a `View` (`.cshtml`) agora se vincula diretamente à propriedade `DepartmentNameSL` da classe base. O `select` Tag Helper foi atualizado para usar `asp-items="@Model.DepartmentNameSL"`. Essa abordagem fortemente tipada permite que o compilador verifique se a propriedade existe, prevenindo erros que só seriam descobertos em tempo de execução.
+
+## 9\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
 | :--- | :--- | :--- |
@@ -451,6 +468,6 @@ A página de Instrutores é a mais complexa da aplicação, implementando um pad
 | **Ideal para...** | Aplicações centradas em formulários, operações CRUD e cenários onde a página é a unidade principal de funcionalidade. | Aplicações complexas com regras de negócio ricas, APIs web, e cenários que exigem alta testabilidade e flexibilidade. |
 | **Reutilização de Lógica** | *(Preencha com sua análise, ex: via View Components, classes base para PageModel)* | *(Preencha com sua análise, ex: Controllers podem servir múltiplas Actions e ser usados para APIs e UI)* |
 
-## 9\. Conclusão
+## 10\. Conclusão
 
 *Aqui você escreverá sua conclusão pessoal sobre qual abordagem se encaixou melhor para este tipo de projeto e por quê, considerando os pontos levantados na organização do código, na camada de dados e no comparativo geral.*

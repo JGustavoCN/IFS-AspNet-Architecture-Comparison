@@ -10,7 +10,7 @@ using IfsAcademicSystem.RazorPages.Models;
 
 namespace IfsAcademicSystem.RazorPages.Pages.Courses
 {
-    public class CreateModel : PageModel
+    public class CreateModel : DepartmentNamePageModel
     {
         private readonly IfsAcademicSystem.RazorPages.Data.SchoolContext _context;
 
@@ -21,25 +21,30 @@ namespace IfsAcademicSystem.RazorPages.Pages.Courses
 
         public IActionResult OnGet()
         {
-        ViewData["DepartmentID"] = new SelectList(_context.Departments, "DepartmentID", "Name");
+            PopulateDepartmentsDropDownList(_context);
             return Page();
         }
 
         [BindProperty]
-        public Course Course { get; set; } = default!;
+        public Course Course { get; set; }
 
-        // For more information, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            var emptyCourse = new Course();
+
+            if (await TryUpdateModelAsync<Course>(
+                 emptyCourse,
+                 "course",   // Prefix for form value.
+                 s => s.CourseID, s => s.DepartmentID, s => s.Title, s => s.Credits))
             {
-                return Page();
+                _context.Courses.Add(emptyCourse);
+                await _context.SaveChangesAsync();
+                return RedirectToPage("./Index");
             }
 
-            _context.Courses.Add(Course);
-            await _context.SaveChangesAsync();
-
-            return RedirectToPage("./Index");
+            // Repopulate departments dropdown. emptyCourse.DepartmentID determines the selected item.
+            PopulateDepartmentsDropDownList(_context, emptyCourse.DepartmentID);
+            return Page();
         }
     }
 }
