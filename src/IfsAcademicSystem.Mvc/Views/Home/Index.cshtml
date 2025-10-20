@@ -1,8 +1,85 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Página Inicial";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="p-5 mb-4 bg-light rounded-3">
+    <div class="container-fluid py-5">
+        <h1 class="display-5 fw-bold">IFS Acadêmico</h1>
+        <p class="col-md-8 fs-4">
+            Uma análise comparativa de arquiteturas Web com ASP.NET Core 8 e Entity Framework Core.
+        </p>
+        <hr class="my-4">
+        <p>Este projeto explora a implementação de um sistema acadêmico utilizando duas abordagens distintas: <strong>Razor Pages</strong> e <strong>MVC</strong>, destacando suas estruturas, fluxo de dados e casos de uso ideais.</p>
+    </div>
+</div>
+
+<div class="row align-items-md-stretch">
+    <div class="col-md-6 mb-4">
+        <div class="h-100 p-5 bg-light border rounded-3">
+            <h2>Implementação Alternativa: Razor Pages</h2>
+            <p>
+                A versão Razor Pages é um modelo de programação centrado na página onde a UI e a lógica de back-end são mantidas juntas. É ideal para aplicações focadas em formulários e operações CRUD, promovendo maior produtividade.
+            </p>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="h-100 p-5 text-white bg-dark rounded-3">
+            <h2>Implementação Atual: MVC</h2>
+            <p>
+                Esta versão foi desenvolvida com a arquitetura MVC (Model-View-Controller), que separa a aplicação em três componentes (Modelo, Visão e Controlador). Esta abordagem promove um baixo acoplamento e é excelente para aplicações complexas.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Detalhes do Projeto</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Instituição:</strong> Instituto Federal de Sergipe (IFS) - Campus Lagarto</p>
+                <p><strong>Disciplina:</strong> GRAD.4027 - Programação WEB II</p>
+                <p><strong>Professor:</strong> Prof. MSc. Arquimedes S. L. de Medeiros</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row text-center">
+    <h2 class="mb-4">Equipe de Desenvolvimento</h2>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">José Gustavo C. Nascimento</h5>
+                <p class="card-text text-muted">Matrícula: 2023004247</p>
+                <a href="https://www.linkedin.com/in/josé-gustavo-correia-nascimento-2100b2377" class="btn btn-outline-primary" target="_blank">LinkedIn</a>
+                <a href="https://github.com/JGustavoCN" class="btn btn-outline-dark" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Jeferson de Souza Andrade</h5>
+                <p class="card-text text-muted">Matrícula: 2023001405</p>
+                <a href="https://www.linkedin.com/in/dev-jeferson-andrade/?locale=pt_BR" class="btn btn-outline-primary" target="_blank">LinkedIn</a>
+                <a href="https://github.com/jefersonae" class="btn btn-outline-dark" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Mariano Nascimento Santos</h5>
+                <p class="card-text text-muted">Matrícula: 2023004069</p>
+                <a href="https://www.linkedin.com/in/mariano-santos-892871272/" class="btn btn-outline-primary" target="_blank">LinkedIn</a>
+                <a href="https://github.com/marianosantts" class="btn btn-outline-dark" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </div>
 </div>
