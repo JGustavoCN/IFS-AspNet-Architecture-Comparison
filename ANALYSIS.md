@@ -440,22 +440,31 @@ A página de Instrutores é a mais complexa da aplicação, implementando um pad
   * **Rotas Amigáveis:** A diretiva `@page "{id:int?}"` foi utilizada para transformar os parâmetros da URL de query strings (ex: `?id=1`) para segmentos de rota (ex: `/Instructors/1`), resultando em URLs mais limpas.
   * **Feedback Visual:** Foi implementada uma lógica na View que aplica a classe CSS `table-success` à linha (`<tr>`) do instrutor e do curso atualmente selecionados, fornecendo um feedback visual claro para os usuários.
 
-## 8. Refatoração e Boas Práticas na UI
+## 8. Refatoração da UI e Boas Práticas de Apresentação
 
-Com as funcionalidades básicas implementadas, o foco se voltou para a melhoria da qualidade do código e da experiência do usuário, especialmente nas páginas de Cursos.
+Com as funcionalidades básicas implementadas, o foco se voltou para a melhoria da qualidade do código e da experiência do usuário, aplicando padrões de reutilização e gerenciando a atualização de dados relacionados diretamente na interface.
 
 ### 8.1. Reutilização de Código com Classes Base de PageModel
 
-Para evitar a duplicação de lógica, foi implementado o padrão de classe base para os PageModels. A funcionalidade de popular a lista suspensa de departamentos, necessária tanto na página de Criação quanto na de Edição de Cursos, foi centralizada em uma nova classe.
+Para evitar a duplicação de lógica em diferentes páginas, foi implementado o padrão de classe base para os PageModels.
 
-* **`DepartmentNamePageModel`:** Foi criada uma classe base que contém o método `PopulateDepartmentsDropDownList`. Este método é responsável por buscar os departamentos no banco de dados e criar um `SelectList` para a UI.
-* **Herança:** As classes `CreateModel` e `EditModel` da pasta `Courses` foram modificadas para herdar de `DepartmentNamePageModel`, ganhando acesso imediato à lógica de popular a lista suspensa e eliminando código repetido (princípio DRY - Don't Repeat Yourself).
+* **Para Cursos (`DepartmentNamePageModel`):** A funcionalidade de popular a lista suspensa de departamentos, necessária tanto na página de Criação quanto na de Edição de Cursos, foi centralizada. As classes `CreateModel` e `EditModel` da pasta `Courses` foram modificadas para herdar desta classe base, eliminando código repetido (princípio DRY).
+
+* **Para Instrutores (`InstructorCoursesPageModel`):** De forma similar, para gerenciar a lista de cursos que um instrutor pode ministrar (funcionalidade necessária na criação e edição de instrutores), foi criada uma classe base. Este `PageModel` contém a lógica `PopulateAssignedCourseData`, que prepara a lista de cursos com checkboxes para a UI.
 
 ### 8.2. Uso de Modelos Fortemente Tipados na UI
 
-Para aumentar a segurança e a manutenibilidade do código, a passagem de dados para a lista suspensa foi alterada de um método fracamente tipado para um fortemente tipado.
+Para aumentar a segurança e a manutenibilidade, a passagem de dados para elementos de formulário foi alterada de métodos fracamente tipados para fortemente tipados. Em vez de usar `ViewData` (que depende de strings "mágicas"), as Views (`.cshtml`) agora se vinculam diretamente a propriedades no `Model`, como `DepartmentNameSL`. Essa abordagem permite que o compilador verifique se a propriedade existe, prevenindo erros que só seriam descobertos em tempo de execução.
 
-* **De `ViewData` para Propriedade de Modelo:** Em vez de usar `ViewData["DepartmentID"]`, que depende de uma string "mágica", a `View` (`.cshtml`) agora se vincula diretamente à propriedade `DepartmentNameSL` da classe base. O `select` Tag Helper foi atualizado para usar `asp-items="@Model.DepartmentNameSL"`. Essa abordagem fortemente tipada permite que o compilador verifique se a propriedade existe, prevenindo erros que só seriam descobertos em tempo de execução.
+### 8.3. Gerenciamento da Relação Muitos-para-Muitos na UI (Instrutores)
+
+A parte mais complexa foi a atualização da relação muitos-para-muitos entre Instrutores e Cursos. Como o `model binding` não atualiza automaticamente uma coleção a partir de checkboxes, uma lógica manual foi implementada no `OnPostAsync` da página de edição de instrutores.
+
+* **Lógica de Sincronização:** Um método auxiliar (`UpdateInstructorCourses`) foi criado para comparar a lista de cursos selecionados no formulário com a lista de cursos já associados ao instrutor no banco de dados, adicionando ou removendo as relações conforme necessário. O uso de `HashSet` tornou as operações de comparação mais eficientes.
+
+### 8.4. Gerenciamento de Relacionamentos Dependentes na Exclusão
+
+Para manter a integridade referencial, a página de Exclusão de Instrutor (`DeleteModel`) foi aprimorada. Antes de excluir um instrutor, o código agora verifica se ele é administrador de algum departamento. Se for, a referência (`InstructorID`) nesses departamentos é definida como `null` antes da exclusão, evitando erros de chave estrangeira no banco de dados.
 
 ## 9\. Comparativo Lado a Lado
 
