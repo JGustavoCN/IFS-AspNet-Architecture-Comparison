@@ -466,7 +466,25 @@ A parte mais complexa foi a atualização da relação muitos-para-muitos entre 
 
 Para manter a integridade referencial, a página de Exclusão de Instrutor (`DeleteModel`) foi aprimorada. Antes de excluir um instrutor, o código agora verifica se ele é administrador de algum departamento. Se for, a referência (`InstructorID`) nesses departamentos é definida como `null` antes da exclusão, evitando erros de chave estrangeira no banco de dados.
 
-## 9\. Comparativo Lado a Lado
+## 9. Tratamento de Conflitos de Concorrência
+
+Para garantir a integridade dos dados em um ambiente multiusuário, foi implementado o controle de **concorrência otimista**. Essa estratégia permite que conflitos aconteçam (quando dois usuários tentam editar o mesmo registro ao mesmo tempo), mas fornece um mecanismo para detectá-los e tratá-los de forma adequada, evitando que as alterações de um usuário sejam sobrescritas silenciosamente por outro.
+
+### 9.1. Implementação com Token de Concorrência (`rowversion`)
+
+A abordagem escolhida, recomendada para SQL Server, foi o uso de um token de concorrência no nível da linha.
+
+* **Modificação do Modelo:** Foi adicionada uma nova propriedade à entidade `Department`:
+    ```csharp
+    [Timestamp]
+    public byte[] ConcurrencyToken { get; set; }
+    ```
+* **Funcionamento:** O atributo `[Timestamp]` instrui o Entity Framework a mapear esta propriedade para uma coluna do tipo `rowversion` no banco de dados. O próprio SQL Server atualiza automaticamente o valor desta coluna toda vez que a linha é modificada.
+* **Detecção do Conflito:** Quando o EF Core executa um comando `UPDATE` ou `DELETE`, ele inclui o valor original do `ConcurrencyToken` na cláusula `WHERE`. Se a linha foi alterada por outro usuário nesse meio tempo, os tokens não corresponderão, o comando não afetará nenhuma linha, e o EF Core lançará uma `DbUpdateConcurrencyException`. A aplicação pode então capturar essa exceção e informar ao usuário que ocorreu um conflito, permitindo que ele decida como proceder.
+
+* **Aplicação via Migração:** A adição da propriedade `ConcurrencyToken` alterou o modelo de dados, exigindo a criação (`Add-Migration RowVersion`) e aplicação (`Update-Database`) de uma nova migração para adicionar a coluna `rowversion` à tabela `Departamentos` no banco de dados.
+
+## 10\. Comparativo Lado a Lado
 
 | Critério | Razor Pages | MVC (Model-View-Controller) |
 | :--- | :--- | :--- |
@@ -477,6 +495,6 @@ Para manter a integridade referencial, a página de Exclusão de Instrutor (`Del
 | **Ideal para...** | Aplicações centradas em formulários, operações CRUD e cenários onde a página é a unidade principal de funcionalidade. | Aplicações complexas com regras de negócio ricas, APIs web, e cenários que exigem alta testabilidade e flexibilidade. |
 | **Reutilização de Lógica** | *(Preencha com sua análise, ex: via View Components, classes base para PageModel)* | *(Preencha com sua análise, ex: Controllers podem servir múltiplas Actions e ser usados para APIs e UI)* |
 
-## 10\. Conclusão
+## 11\. Conclusão
 
 *Aqui você escreverá sua conclusão pessoal sobre qual abordagem se encaixou melhor para este tipo de projeto e por quê, considerando os pontos levantados na organização do código, na camada de dados e no comparativo geral.*
