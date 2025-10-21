@@ -35,6 +35,7 @@ namespace IfsAcademicSystem.RazorPages.Models
             get { return $"{FirstMidName} {LastName}"; }
         }
 
+        [Display(Name = "Matrículas")]
         public ICollection<Enrollment> Enrollments { get; set; }
     }
 }
