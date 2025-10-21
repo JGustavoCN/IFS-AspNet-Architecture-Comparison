@@ -792,3 +792,57 @@ O fluxo de trabalho é o mesmo, quer se esteja num projeto Razor Pages ou MVC:
 * **Outros Comandos:** Comandos como `Remove-Migration` (que remove o último ficheiro de migração e reverte o instantâneo) também funcionam da mesma forma em ambos os projetos.
 
 **Conclusão:** Esta etapa reforça que o EF Core é uma camada de infraestrutura completamente desacoplada da UI. A forma como geres, crias e atualizas a tua base de dados não é afetada pela tua escolha entre Razor Pages e MVC.
+
+## 7. Modelagem de Dados Complexos e Relacionamentos
+
+Esta etapa da implementação consistiu em evoluir o modelo de dados simples para um modelo mais robusto, que reflete as complexas regras de negócio de uma universidade. Isto envolveu a adição de novas entidades (`Instructor`, `OfficeAssignment`, `Department`, `CourseAssignment`) e a atualização das existentes.
+
+### 7.1. Análise Comparativa
+
+Esta é a secção mais importante da nossa análise até agora, juntamente com as Secções 3 e 6: **A implementação é 100% idêntica e partilhada entre os projetos MVC e Razor Pages.**
+
+Toda a lógica de negócio, regras de validação, relacionamentos e mapeamento da base de dados residem nos ficheiros da pasta `Models/` e no `Data/SchoolContext.cs`. O projeto MVC reutiliza esta camada sem qualquer alteração.
+
+Isto prova que a escolha entre MVC e Razor Pages é puramente uma decisão sobre a **arquitetura da camada de apresentação (UI)**. A lógica de negócio e de dados subjacente permanece independente, reutilizável e agnóstica.
+
+### 7.2. Análise dos Conceitos de Modelagem (Comum a Ambos)
+
+Ambos os projetos utilizam uma combinação de **Convenções do EF Core**, **Atributos (Data Annotations)** e **API Fluente** para construir o modelo.
+
+* **Atributos (Data Annotations):** São usados para fornecer metadados ao EF Core e ao ASP.NET Core.
+  * **Validação e Schema (`System.ComponentModel.DataAnnotations`):**
+    * `[Required]`: Indica que a propriedade não pode ser nula. Afeta tanto a validação do lado do cliente (nos formulários) como o esquema da base de dados (coluna `NOT NULL`).
+    * `[StringLength(50)]`, `[MaxLength(50)]`: Define um tamanho máximo. Usado para validação e para definir o tamanho da coluna (ex: `nvarchar(50)`).
+    * `[Range(0, 5)]`: Define um intervalo numérico para validação.
+    * `[RegularExpression(...)]`: Valida o formato da string.
+  * **Apenas UI/Formatação (`System.ComponentModel.DataAnnotations`):**
+    * `[Display(Name = "Last Name")]`: Controla o texto exibido pelos auxiliares de marcação (ex: `<label>`).
+    * `[DataType(DataType.Date)]`: Especifica o tipo de dados, ajudando os *Tag Helpers* a renderizar o controlo HTML correto (ex: `type="date"`).
+    * `[DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]`: Formata a exibição dos dados.
+  * **Apenas Schema (`System.ComponentModel.DataAnnotations.Schema`):**
+    * `[Column("NomeDaColuna")]`: Especifica um nome de coluna diferente do nome da propriedade.
+    * `[DatabaseGenerated(DatabaseGeneratedOption.None)]`: Informa ao EF Core que a chave primária (ex: `CourseID`) será fornecida pela aplicação, em vez de ser gerada pela base de dados.
+
+* **Propriedades de Navegação e Relacionamentos:**
+  * O EF Core interpreta os relacionamentos com base nas **propriedades de navegação** (`ICollection<T>`, `List<T>`, ou tipos de entidade simples como `Department`).
+  * **Chaves Primárias (PK):** São detetadas por convenção (`ID` ou `classnameID`) ou explicitamente com o atributo `[Key]`.
+  * **Chaves Estrangeiras (FK):** O EF Core pode criar "propriedades de sombra" (shadow properties) para FKs, mas é uma boa prática incluí-las explicitamente (ex: `public int DepartmentID { get; set; }`). O uso de `int?` (um inteiro que permite valor nulo) indica que o relacionamento é opcional.
+  * **Relacionamento Muitos-para-Muitos:**
+    * Ambos os tutoriais implementam a relação N-N entre `Instructor` e `Course` criando uma **tabela de junção explícita com conteúdo** (`CourseAssignment`).
+    * Isto é feito criando a entidade `CourseAssignment` com uma **chave primária composta** (`CourseID` e `InstructorID`). Esta chave é definida usando a **API Fluente**, pois os atributos não conseguem definir chaves compostas de forma limpa.
+
+* **API Fluente (`OnModelCreating`) vs. Atributos:**
+  * Embora a maioria da modelagem tenha sido feita com atributos (Annotations), a **API Fluente** (configurando o `modelBuilder` no `OnModelCreating` do `DbContext`) é usada para cenários mais complexos que os atributos não suportam. **A API Fluente sempre substitui os atributos.**
+  * **Exemplo 1 (Chave Composta):** `modelBuilder.Entity<CourseAssignment>().HasKey(c => new { c.CourseID, c.InstructorID });`
+  * **Exemplo 2 (Exclusão em Cascata):** Por convenção, o EF Core habilita a exclusão em cascata (cascade delete) para chaves estrangeiras que não permitem nulos. Como explicado, isto pode criar *ciclos* de exclusão. Para corrigir isto (ex: impedir que a exclusão de um `Instructor` exclua um `Department` do qual ele é administrador), a API Fluente é usada para definir o comportamento como restrito: `modelBuilder.Entity<Department>().HasOne(d => d.Administrator).WithMany().OnDelete(DeleteBehavior.Restrict)`.
+
+### 7.3. O Desafio da Migração: Adicionando Colunas Obrigatórias
+
+Como o modelo de dados evoluiu, a migração (`Add-Migration ComplexDataModel`) precisou de uma intervenção manual.
+
+* **O Problema:** A entidade `Course` foi modificada para ter uma `DepartmentID` obrigatória (não nula). No entanto, a base de dados já continha registos de `Course` (criados pelo `DbInitializer`). Ao aplicar a migração, o SQL Server não saberia qual valor colocar na nova coluna `DepartmentID` para os cursos que já existiam, resultando num erro.
+* **A Solução (Comum a Ambos):**
+    1. A migração gerada foi editada manualmente.
+    2. Primeiro, um `migrationBuilder.Sql("INSERT INTO Department (Name, Budget, StartDate) VALUES ('Temp', 0.00, GETDATE())")` foi adicionado para criar um departamento "fantasma" temporário.
+    3. Segundo, o comando `migrationBuilder.AddColumn<int>(...)` para `DepartmentID` foi modificado para incluir um `defaultValue: 1` (assumindo que 1 é o ID do departamento "Temp").
+    4. Isto permitiu que o `Update-Database` fosse executado com sucesso, associando todos os cursos existentes ao departamento temporário, satisfazendo a restrição `NOT NULL`.
