@@ -1,5 +1,5 @@
 // Adicione estes `usings` no topo para ter acesso às classes necessárias
-using IfsAcademicSystem.RazorPages.Data;
+using IfsAcademicSystem.Mvc.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;

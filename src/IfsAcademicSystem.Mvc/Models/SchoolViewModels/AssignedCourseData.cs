@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace IfsAcademicSystem.RazorPages.Models.SchoolViewModels
+namespace IfsAcademicSystem.Mvc.Models.SchoolViewModels
 {
     public class AssignedCourseData
     {

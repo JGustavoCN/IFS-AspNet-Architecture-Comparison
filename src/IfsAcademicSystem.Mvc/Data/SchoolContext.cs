@@ -1,7 +1,7 @@
-﻿using IfsAcademicSystem.RazorPages.Models;
+﻿using IfsAcademicSystem.Mvc.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace IfsAcademicSystem.RazorPages.Data
+namespace IfsAcademicSystem.Mvc.Data
 {
     public class SchoolContext : DbContext
     {

@@ -1,9 +1,9 @@
-﻿using IfsAcademicSystem.RazorPages.Models;
+﻿using IfsAcademicSystem.Mvc.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace IfsAcademicSystem.RazorPages.Data
+namespace IfsAcademicSystem.Mvc.Data
 {
     public static class DbInitializer
     {

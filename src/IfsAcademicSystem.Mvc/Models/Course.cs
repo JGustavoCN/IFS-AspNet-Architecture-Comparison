@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace IfsAcademicSystem.RazorPages.Models
+namespace IfsAcademicSystem.Mvc.Models
 {
     [Table("Cursos")]
     [Index(nameof(Title), IsUnique = true)] // Garante que não haverá dois cursos com o mesmo título

@@ -1,0 +1,40 @@
+﻿@model IEnumerable<IfsAcademicSystem.Mvc.Models.SchoolViewModels.EnrollmentDateGroup>
+
+@{
+    ViewData["Title"] = "Estatísticas do Corpo Discente";
+}
+
+<div class="container mt-5">
+
+    <h2 class="text-center mb-4">@ViewData["Title"]</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-striped table-hover table-bordered">
+                <thead class="thead-dark">
+                    <tr class="text-center">
+                        <th>
+                            @Html.DisplayNameFor(model => model.FirstOrDefault().EnrollmentDate)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.FirstOrDefault().StudentCount)
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="text-center">
+                            <td>
+                                @Html.DisplayFor(modelItem => item.EnrollmentDate)
+                            </td>
+                            <td>
+                                @item.StudentCount
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace IfsAcademicSystem.RazorPages.Models
+namespace IfsAcademicSystem.Mvc.Models
 {
     public enum Grade { A, B, C, D, F }
 
