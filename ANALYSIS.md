@@ -935,3 +935,63 @@ Este é um ponto crucial na nossa análise. Os dois tutoriais oficiais da Micros
   * Ambas as arquiteturas identificaram a necessidade de um `ViewModel` para servir uma UI complexa.
   * Ambas usaram a mesma consulta EF Core de alta performance (Eager Loading) para preencher esse `ViewModel`.
   * Mais uma vez, a única diferença foi o "encanamento" de como o `ViewModel` preenchido chegou ao ficheiro `.cshtml`.
+
+## 9. Atualização de Dados Relacionados
+
+Se a *leitura* de dados relacionados (Secção 8) demonstrou a eficiência do EF Core, a *atualização* desses dados demonstra como cada arquitetura lida com operações complexas e transacionais. Esta é a funcionalidade mais complexa do tutorial.
+
+### 9.1. Cenário 1: Atualizar Relação 1-N (Curso e Departamento)
+
+* **Objetivo:** Na página de edição de um `Course` (Curso), permitir a alteração do seu `Department` (Departamento) através de uma lista *dropdown*.
+* **Implementação em Razor Pages:**
+  * O `PageModel` (`Pages/Courses/Edit.cshtml.cs`) herda de uma classe base (`DepartmentNamePageModel`) que tem a lógica para criar um `SelectList` dos departamentos.
+  * `OnGetAsync()`: Carrega o curso e chama a lógica para popular o `SelectList`, que é armazenado numa propriedade (ex: `ViewData["DepartmentID"]` ou uma propriedade tipada).
+  * `OnPostAsync()`: Usa `TryUpdateModelAsync` para aplicar de forma segura as alterações ao `Course` que foi carregado, incluindo a `DepartmentID` selecionada no *dropdown*.
+
+* **Implementação em MVC:**
+  * O `Controller` (`CoursesController.cs`) é responsável por esta lógica.
+  * `Edit()` [GET]: Carrega o curso e chama um método auxiliar (ou fá-lo diretamente) para criar o `SelectList` de departamentos, que é passado para a *View* através do `ViewData["DepartmentID"]`.
+  * `Edit()` [POST]: Usa `TryUpdateModelAsync` (ou `[Bind]`) para aplicar as alterações.
+
+* **Análise:** A lógica é idêntica. Ambos precisam de carregar dados "extra" (a lista de departamentos) para a *View*. Ambos usam a mesma estratégia de `POST` (carregar, tentar atualizar, salvar). A única diferença é *onde* a lógica para popular o *dropdown* reside (classe base do `PageModel` vs. método privado ou `Action` no `Controller`).
+
+### 9.2. Cenário 2: Atualizar Relações 1-1 e N-N (Instrutor)
+
+* **Objetivo:** Na página de edição de um `Instructor` (Instrutor), permitir:
+    1. A edição do `OfficeAssignment` (Lotação) (relação 1-1).
+    2. A seleção dos `Courses` (Cursos) que ele leciona (relação N-N) através de *checkboxes*.
+
+* **Análise da Implementação (Quase Idêntica):**
+    Esta funcionalidade é tão complexa que ambas as arquiteturas adotam exatamente a mesma abordagem técnica, provando que, para lógica de negócio complexa, a arquitetura de UI torna-se apenas um "invólucro".
+
+    1. **ViewModel (`AssignedCourseData`):**
+        * Ambas as arquiteturas reutilizam o mesmo *ViewModel*, `AssignedCourseData`, para representar a lista de *checkboxes* (contendo `CourseID`, `Title` e o *booleano* `Assigned`).
+
+    2. **Lógica `GET` (Popular a Página):**
+        * **Razor Pages:** O `OnGetAsync()` no `PageModel` (`Pages/Instructors/Edit.cshtml.cs`) carrega o `Instructor` (com `Include` dos seus `OfficeAssignment` e `Courses`) e chama um método auxiliar (`PopulateAssignedCourseData`) para preencher a lista de *checkboxes*. O `ViewModel` é armazenado como uma propriedade no `PageModel`.
+        * **MVC:** A `Action` `Edit()` [GET] no `Controller` (`InstructorsController.cs`) faz *exatamente o mesmo*: carrega o `Instructor` (com `Include`), chama o *mesmo* método auxiliar (`PopulateAssignedCourseData`) e passa a lista de *checkboxes* para a *View* (ex: via `ViewData["Courses"]`).
+
+    3. **Renderização na View (`.cshtml`):**
+        * As *Views* são quase idênticas. Ambas usam os *Tag Helpers* `label asp-for`, `input asp-for` e `span asp-validation-for` para os campos simples (como `LastName`).
+        * Ambas contêm um ciclo `foreach` para renderizar a lista de *checkboxes* do `ViewModel` (`AssignedCourseData`).
+        * *(Nota: A observação do tutorial sobre `Ctrl+Z` para corrigir a formatação do Razor é um *bug* de editor de versões mais antigas do Visual Studio, mas destaca a sintaxe complexa de renderização que é partilhada por ambos.)*
+
+    4. **Lógica `POST` (Processar a Atualização):**
+        * **Razor Pages:** O `OnPostAsync(int? id, string[] selectedCourses)` recebe os dados. Ele primeiro carrega a entidade `Instructor` original (com `.Include(i => i.Courses)`). Em seguida, usa `TryUpdateModelAsync` para aplicar as alterações simples (como `LastName` e `OfficeAssignment.Location`). Finalmente, chama um método auxiliar (`UpdateInstructorCourses`) que recebe o array `selectedCourses`, compara-o com os cursos atuais do instrutor e **adiciona ou remove manualmente** as entidades da coleção `instructor.Courses`.
+        * **MVC:** A `Action` `Edit(int? id, string[] selectedCourses)` [POST] faz **exatamente a mesma coisa**. Carrega, usa `TryUpdateModelAsync`, e chama o *mesmo* método auxiliar (`UpdateInstructorCourses`) para manipular a coleção N-N.
+
+### 9.3. Análise de Conceitos-Chave da Atualização
+
+* **`TryUpdateModelAsync` (ou `TryUpdateModel`):**
+  * Este método é a estrela desta secção. Como vimos no CRUD (4.4), ele é a forma mais segura de aplicar valores de um formulário a uma entidade *já rastreada* pelo `DbContext` (a que carregámos com `FindAsync` ou `FirstOrDefaultAsync`).
+  * Ele previne *overposting* (excesso de postagem) e aplica de forma inteligente as alterações, marcando apenas as propriedades modificadas.
+
+* **Transações (Implícitas):**
+  * A operação `POST` da edição do Instrutor altera múltiplas tabelas: `Instructor` (dados pessoais), `OfficeAssignment` (lotação) e a tabela de junção `CourseInstructor` (cursos).
+  * O Entity Framework Core é inteligente o suficiente para saber disto. Quando `await _context.SaveChangesAsync()` é chamado, o EF Core **automaticamente envolve todas estas operações numa única transação de base de dados**.
+  * Se a atualização do nome do `Instructor` funcionar, mas a adição de um `Course` falhar, a base de dados **reverte (rollback) tudo**. A atualização do nome *não* é guardada. Isto garante a integridade dos dados sem que precisemos de escrever código de transação manualmente.
+
+* **`ActionName`:**
+  * Este atributo (mencionado nos conceitos) é usado em MVC quando o nome do método C# não corresponde ao nome da *Action* que o roteamento espera.
+  * É mais comum na funcionalidade `Delete`, onde temos uma `Action` `Delete(int id)` [GET] e outra `DeleteConfirmed(int id)` [POST]. Para que a segunda `Action` responda ao `POST` de `/Delete/5`, usamos `[HttpPost, ActionName("Delete")]`.
+  * Em Razor Pages, isto não é necessário, pois os *handlers* já são nomeados por convenção (`OnGet`, `OnPost`).
