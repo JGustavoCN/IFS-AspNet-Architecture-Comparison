@@ -846,3 +846,92 @@ Como o modelo de dados evoluiu, a migração (`Add-Migration ComplexDataModel`) 
     2. Primeiro, um `migrationBuilder.Sql("INSERT INTO Department (Name, Budget, StartDate) VALUES ('Temp', 0.00, GETDATE())")` foi adicionado para criar um departamento "fantasma" temporário.
     3. Segundo, o comando `migrationBuilder.AddColumn<int>(...)` para `DepartmentID` foi modificado para incluir um `defaultValue: 1` (assumindo que 1 é o ID do departamento "Temp").
     4. Isto permitiu que o `Update-Database` fosse executado com sucesso, associando todos os cursos existentes ao departamento temporário, satisfazendo a restrição `NOT NULL`.
+
+## 8. Leitura de Dados Relacionados
+
+Uma vez que o modelo de dados complexo está definido, o próximo passo é consultar e exibir esses dados relacionados. Um **ORM** como o Entity Framework Core facilita isto ao "mapear" as linhas da base de dados para objetos C# e preencher as suas **propriedades de navegação**.
+
+### 8.1. Estratégias de Carregamento (Conceitos Comuns)
+
+Ambos os projetos dependem das mesmas estratégias de carregamento de dados do EF Core:
+
+* **Carregamento Adiantado (Eager Loading):** Esta é a estratégia principal usada em ambos os tutoriais.
+  * **Como funciona:** Os dados relacionados são recuperados juntamente com a entidade principal numa única consulta. Isto é feito usando os métodos `.Include()` (para o primeiro nível de relacionamento) e `.ThenInclude()` (para níveis subsequentes).
+  * **Vantagem:** É muito eficiente. Evita o "problema N+1", onde uma consulta inicial é seguida por N consultas separadas (uma para cada entidade relacionada).
+* **Carregamento Explícito (Explicit Loading):**
+  * **Como funciona:** Os dados relacionados são carregados *após* a entidade principal já ter sido recuperada, mas através de um comando explícito (ex: `_context.Entry(student).Collection(s => s.Enrollments).LoadAsync()`).
+  * **Vantagem:** Útil quando os dados relacionados só são necessários condicionalmente.
+* **Carregamento Lento (Lazy Loading):**
+  * **Como funciona:** Os dados relacionados são carregados automaticamente da base de dados no momento em que a propriedade de navegação é acedida pela primeira vez.
+  * **Análise:** Embora suportado pelo EF Core (com pacotes extra), não é usado nos tutoriais, pois pode levar facilmente ao problema N+1 se não for usado com cuidado.
+
+### 8.2. Rastreamento vs. Sem Rastreamento (Performance)
+
+* **Consultas de Acompanhamento (Tracking):** Por padrão, o `DbContext` "rastreia" as entidades que recupera. Ele guarda um instantâneo delas para poder detetar alterações e gerar o `UPDATE` correto quando `SaveChanges()` é chamado.
+* **Consultas Sem Acompanhamento (`AsNoTracking()`):**
+  * Para páginas de **apenas leitura** (como as páginas `Index` e `Details`), este rastreamento é um desperdício de memória e processamento.
+  * Ambos os tutoriais usam `.AsNoTracking()` nestas páginas. Isto diz ao EF Core: "Apenas me dê os dados; não precisas de os rastrear para futuras atualizações."
+  * **Resultado:** A consulta é executada significativamente mais rápido e consome menos memória.
+
+### 8.3. Ponto de Divergência: Relações Muitos-para-Muitos (N-N)
+
+Este é um ponto crucial na nossa análise. Os dois tutoriais oficiais da Microsoft abordam o relacionamento N-N (Instrutores <-> Cursos) de formas diferentes:
+
+1. **Tutorial Razor Pages (e o teu Projeto):** Usa a abordagem moderna (EF Core 5+), onde a **tabela de junção é implícita**. O modelo tem apenas `ICollection<Course>` em `Instructor` e `ICollection<Instructor>` em `Course`. O EF Core cria a tabela de junção automaticamente.
+2. **Tutorial MVC (Oficial):** Usa a abordagem mais antiga (ou necessária quando a tabela de junção tem *conteúdo*), onde a **tabela de junção é explícita**. Ou seja, existe uma entidade `CourseAssignment` que representa manualmente a ligação.
+
+**Decisão do Projeto:** Para manter uma comparação justa entre as arquiteturas de UI, **o nosso projeto MVC reutiliza o modelo de dados moderno (implícito) do projeto Razor Pages**. Portanto, a nossa análise compara como o MVC e o Razor Pages consomem o **mesmo** modelo de dados.
+
+### 8.4. Implementação e Análise Comparativa
+
+#### Funcionalidade: Página de Cursos (Carregamento Nível 1)
+
+* **Objetivo:** Listar Cursos e exibir o nome do `Department` relacionado (relacionamento 1-N).
+* **Implementação em Razor Pages:**
+  * O `PageModel` (`Pages/Courses/Index.cshtml.cs`) usa Eager Loading para buscar o departamento.
+  * A consulta é: `_context.Courses.Include(c => c.Department).AsNoTracking()`.
+  * O resultado é atribuído a uma propriedade: `public IList<Course> Course { get; set; }`.
+
+* **Implementação em MVC:**
+  * O `Controller` (`Controllers/CoursesController.cs`) usa a *mesma* consulta na `Action Index`.
+  * A consulta é: `_context.Courses.Include(c => c.Department).AsNoTracking()`.
+  * O resultado é passado para a View: `return View(await courses.ToListAsync())`.
+
+* **Análise:** A lógica de acesso a dados é **100% idêntica**. A única diferença é como os dados chegam à View (`PageModel` Property vs. `return View(model)`).
+
+#### Funcionalidade: Página de Instrutores (Carregamento Nível Múltiplo)
+
+* **Objetivo:** Criar uma página mestre-detalhe complexa:
+    1. Mostrar a lista de Instrutores.
+    2. Ao selecionar um Instrutor, mostrar os Cursos que ele leciona (N-N).
+    3. Ao selecionar um Curso, mostrar os Alunos matriculados (1-N).
+* **Necessidade:** Esta UI complexa não pode ser representada por uma única entidade (`Instructor`). Ela requer um **ViewModel** dedicado (`InstructorIndexData`) para conter as três listas (`IEnumerable<Instructor>`, `IEnumerable<Course>`, `IEnumerable<Enrollment>`).
+* **Implementação em Razor Pages:**
+  * O `PageModel` (`Pages/Instructors/Index.cshtml.cs`) é responsável por orquestrar esta lógica.
+  * No `OnGetAsync()`, ele usa uma consulta complexa de Eager Loading com `Include` e `ThenInclude` para trazer todos os dados necessários de uma só vez:
+
+    ```csharp
+    viewModel.Instructors = await _context.Instructors
+        .Include(i => i.OfficeAssignment)
+        .Include(i => i.Courses) // Nível 1
+            .ThenInclude(c => c.Department) // Nível 2
+        .Include(i => i.Courses) // Nível 1 (de novo)
+            .ThenInclude(c => c.Enrollments) // Nível 2
+                .ThenInclude(e => e.Student) // Nível 3
+        .AsNoTracking()
+        .ToListAsync();
+    ```
+
+  * O `PageModel` então preenche o `ViewModel` (`InstructorIndexData`) e expõe-no como uma propriedade pública para a View.
+
+* **Implementação em MVC:**
+  * O `Controller` (`Controllers/InstructorsController.cs`) tem a **exata mesma responsabilidade**.
+  * A `Action Index()` reutiliza o mesmo `InstructorIndexData` ViewModel.
+  * A lógica de consulta dentro da `Action` é **idêntica** à do `OnGetAsync()` do Razor Pages (a mesma consulta com `Include` e `ThenInclude`).
+  * O `Controller` preenche o `ViewModel` e passa-o para a View: `return View(viewModel)`.
+
+* **Análise Comparativa:**
+  * Esta é a prova mais forte de que a complexidade da lógica de consulta de dados **não depende** da arquitetura de UI.
+  * Ambas as arquiteturas identificaram a necessidade de um `ViewModel` para servir uma UI complexa.
+  * Ambas usaram a mesma consulta EF Core de alta performance (Eager Loading) para preencher esse `ViewModel`.
+  * Mais uma vez, a única diferença foi o "encanamento" de como o `ViewModel` preenchido chegou ao ficheiro `.cshtml`.
