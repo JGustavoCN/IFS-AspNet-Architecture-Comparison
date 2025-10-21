@@ -518,6 +518,7 @@ A lógica para lidar com a exceção foi implementada nas páginas de Edição e
 *Aqui você escreverá sua conclusão pessoal sobre qual abordagem se encaixou melhor para este tipo de projeto e por quê, considerando os pontos levantados na organização do código, na camada de dados e no comparativo geral.*
 '''
 '''
+
 # Análise Comparativa: Arquiteturas Razor Pages e MVC
 
 ## 1. Introdução
@@ -533,10 +534,10 @@ Este documento apresenta uma análise comparativa entre as arquiteturas Razor Pa
 * **Estrutura de Arquivos:** O projeto utiliza uma estrutura centrada na pasta `Pages`. Cada página consiste em dois ficheiros acoplados: um ficheiro `.cshtml` (a View) e um ficheiro code-behind `.cshtml.cs` que contém a classe `PageModel` para lidar com as requisições.
 
 * **Configuração do Projeto:**
-    * **Framework:** .NET 8.0
-    * **Autenticação:** Nenhuma
-    * **HTTPS:** Configurado
-    * **Configuração:** Utiliza instruções de nível superior no `Program.cs` para uma configuração mais concisa.
+  * **Framework:** .NET 8.0
+  * **Autenticação:** Nenhuma
+  * **HTTPS:** Configurado
+  * **Configuração:** Utiliza instruções de nível superior no `Program.cs` para uma configuração mais concisa.
 
 ### 2.2. MVC (Model-View-Controller)
 
@@ -545,10 +546,10 @@ Este documento apresenta uma análise comparativa entre as arquiteturas Razor Pa
 * **Estrutura de Arquivos:** O projeto organiza o código em pastas distintas para cada responsabilidade: `Controllers` (para a lógica de requisição), `Views` (para a UI, organizada por subpastas de controller) e `Models` (para as entidades de dados).
 
 * **Configuração do Projeto:**
-    * **Framework:** .NET 8.0
-    * **Autenticação:** Nenhuma
-    * **HTTPS:** Configurado
-    * **Configuração:** Com a adoção do "modelo de hospedagem mínimo" a partir do .NET 6, a configuração também é unificada no `Program.cs`, abolindo o antigo ficheiro `Startup.cs`.
+  * **Framework:** .NET 8.0
+  * **Autenticação:** Nenhuma
+  * **HTTPS:** Configurado
+  * **Configuração:** Com a adoção do "modelo de hospedagem mínimo" a partir do .NET 6, a configuração também é unificada no `Program.cs`, abolindo o antigo ficheiro `Startup.cs`.
 
 ### 2.3. Análise Comparativa da Estrutura
 
@@ -569,16 +570,16 @@ A implementação das operações básicas de dados expõe as diferenças práti
 ### 4.1. Listar Entidades (Read)
 
 * **Implementação em Razor Pages:**
-    1.  A funcionalidade está encapsulada nos ficheiros `Pages/Students/Index.cshtml` e `Pages/Students/Index.cshtml.cs`.
-    2.  Uma requisição GET a `/Students` executa o método `OnGetAsync()` no `PageModel`.
-    3.  Os dados são obtidos da base de dados e atribuídos a uma **propriedade pública** do `PageModel` (ex: `public IList<Student> Student { get; set; }`).
-    4.  A View (`.cshtml`) acede aos dados através desta propriedade (`Model.Student`).
+    1. A funcionalidade está encapsulada nos ficheiros `Pages/Students/Index.cshtml` e `Pages/Students/Index.cshtml.cs`.
+    2. Uma requisição GET a `/Students` executa o método `OnGetAsync()` no `PageModel`.
+    3. Os dados são obtidos da base de dados e atribuídos a uma **propriedade pública** do `PageModel` (ex: `public IList<Student> Student { get; set; }`).
+    4. A View (`.cshtml`) acede aos dados através desta propriedade (`Model.Student`).
 
 * **Implementação em MVC:**
-    1.  A funcionalidade está dividida entre `Controllers/StudentsController.cs` e `Views/Students/Index.cshtml`.
-    2.  Uma requisição GET a `/Students` é roteada para a `Action` `Index()` no `StudentsController`.
-    3.  Os dados são obtidos da base de dados e **passados como argumento** para a View através do método `return View(dados)`.
-    4.  A View (`.cshtml`) recebe a lista de dados diretamente no seu `@model`.
+    1. A funcionalidade está dividida entre `Controllers/StudentsController.cs` e `Views/Students/Index.cshtml`.
+    2. Uma requisição GET a `/Students` é roteada para a `Action` `Index()` no `StudentsController`.
+    3. Os dados são obtidos da base de dados e **passados como argumento** para a View através do método `return View(dados)`.
+    4. A View (`.cshtml`) recebe a lista de dados diretamente no seu `@model`.
 
 * **Análise Comparativa:**
 
@@ -593,120 +594,120 @@ A implementação das operações básicas de dados expõe as diferenças práti
 Ambas as arquiteturas separam a lógica de "mostrar o formulário" da de "processar os dados".
 
 * **Implementação em Razor Pages:**
-    1.  A página `Create.cshtml.cs` tem dois *handlers*: `OnGet()` e `OnPostAsync()`.
-    2.  `OnGet()`: Apenas exibe a página (`return Page();`).
-    3.  `OnPostAsync()`:
+    1. A página `Create.cshtml.cs` tem dois *handlers*: `OnGet()` e `OnPostAsync()`.
+    2. `OnGet()`: Apenas exibe a página (`return Page();`).
+    3. `OnPostAsync()`:
         * Os dados do formulário são vinculados à propriedade `[BindProperty] public Student Student { get; set; }`.
         * Usa `_context.Students.Add(Student)` para marcar a entidade como `Added`.
         * Salva na base de dados e redireciona.
-    4.  A segurança contra *overposting* (excesso de postagem) é feita implicitamente no tutorial, pois o `[BindProperty]` cria um novo `Student` vazio e o `Add` apenas insere os campos que foram vinculados.
+    4. A segurança contra *overposting* (excesso de postagem) é feita implicitamente no tutorial, pois o `[BindProperty]` cria um novo `Student` vazio e o `Add` apenas insere os campos que foram vinculados.
 
 * **Implementação em MVC:**
-    1.  O `StudentsController.cs` tem duas *Actions*: `Create()` (com `[HttpGet]`) e `Create()` (com `[HttpPost]`).
-    2.  `Create()` [GET]: Apenas exibe a *View* (`return View();`).
-    3.  `Create()` [POST]:
+    1. O `StudentsController.cs` tem duas *Actions*: `Create()` (com `[HttpGet]`) e `Create()` (com `[HttpPost]`).
+    2. `Create()` [GET]: Apenas exibe a *View* (`return View();`).
+    3. `Create()` [POST]:
         * Recebe os dados como um *parâmetro* da *Action*: `public async Task<IActionResult> Create([Bind("LastName,FirstMidName,EnrollmentDate")] Student student)`.
         * O `Model Binding` cria o objeto `student` a partir do formulário.
         * A segurança contra *overposting* é explícita, usando o atributo `[Bind(...)]` para listar *exatamente* quais campos são permitidos.
         * Usa `_context.Add(student)` (estado `Added`) e salva.
 
 * **Análise Comparativa:**
-    * A lógica é quase idêntica, mas a implementação difere. Razor Pages usa *Handlers* na mesma classe, enquanto MVC usa *Actions* separadas no *Controller*.
-    * Ambos usam o atributo `[ValidateAntiForgeryToken]` para prevenir ataques CSRF, com o *token* a ser gerado automaticamente pelo `<form>`.
-    * A principal diferença é no `Model Binding` e segurança: Razor Pages vincula a uma propriedade da classe, enquanto MVC vincula a um parâmetro de método. O tutorial de MVC introduz imediatamente o `[Bind]` como uma medida de segurança explícita contra *overposting*.
+  * A lógica é quase idêntica, mas a implementação difere. Razor Pages usa *Handlers* na mesma classe, enquanto MVC usa *Actions* separadas no *Controller*.
+  * Ambos usam o atributo `[ValidateAntiForgeryToken]` para prevenir ataques CSRF, com o *token* a ser gerado automaticamente pelo `<form>`.
+  * A principal diferença é no `Model Binding` e segurança: Razor Pages vincula a uma propriedade da classe, enquanto MVC vincula a um parâmetro de método. O tutorial de MVC introduz imediatamente o `[Bind]` como uma medida de segurança explícita contra *overposting*.
 
 ### 4.3. Exibir Detalhes (Details)
 
 Esta operação é focada apenas em leitura e é muito semelhante à listagem (4.1).
 
 * **Implementação em Razor Pages:**
-    * O `PageModel` (`Details.cshtml.cs`) usa `OnGetAsync(int? id)` para receber o ID.
-    * Os dados são buscados (com `FirstOrDefaultAsync`) e atribuídos à propriedade `public Student Student { get; set; }`.
-    * A *View* acede aos dados via `Model.Student.LastName`.
+  * O `PageModel` (`Details.cshtml.cs`) usa `OnGetAsync(int? id)` para receber o ID.
+  * Os dados são buscados (com `FirstOrDefaultAsync`) e atribuídos à propriedade `public Student Student { get; set; }`.
+  * A *View* acede aos dados via `Model.Student.LastName`.
 
 * **Implementação em MVC:**
-    * O `Controller` usa a *Action* `Details(int? id)`.
-    * Os dados são buscados (com `FirstOrDefaultAsync`) e passados diretamente para a *View*: `return View(student)`.
-    * A *View* acede aos dados diretamente via `Model.LastName`.
+  * O `Controller` usa a *Action* `Details(int? id)`.
+  * Os dados são buscados (com `FirstOrDefaultAsync`) e passados diretamente para a *View*: `return View(student)`.
+  * A *View* acede aos dados diretamente via `Model.LastName`.
 
 * **Análise Comparativa:**
-    * A lógica é idêntica. A única diferença, tal como na listagem, é que Razor Pages usa uma propriedade no `PageModel` para expor os dados, enquanto MVC passa o modelo diretamente para a `View()`.
-    * *Nota*: Ambos os tutoriais usam `FirstOrDefaultAsync`. Uma otimização possível em ambos seria usar `FindAsync(id)`, que primeiro verifica se a entidade já está na memória (cache do DbContext) antes de consultar a base de dados, sendo ideal para buscas por chave primária.
+  * A lógica é idêntica. A única diferença, tal como na listagem, é que Razor Pages usa uma propriedade no `PageModel` para expor os dados, enquanto MVC passa o modelo diretamente para a `View()`.
+  * *Nota*: Ambos os tutoriais usam `FirstOrDefaultAsync`. Uma otimização possível em ambos seria usar `FindAsync(id)`, que primeiro verifica se a entidade já está na memória (cache do DbContext) antes de consultar a base de dados, sendo ideal para buscas por chave primária.
 
 ### 4.4. Editar Entidades (Update)
 
 Esta é a operação mais complexa e onde as diferenças de abordagem ficam mais evidentes, especialmente em relação ao tratamento do estado "desconectado" da web.
 
 * **Implementação em Razor Pages:**
-    1.  `OnGetAsync(int? id)`: Busca o estudante (com `FindAsync`) e preenche a propriedade `[BindProperty] Student` para exibir no formulário.
-    2.  `OnPostAsync(int id)`:
+    1. `OnGetAsync(int? id)`: Busca o estudante (com `FindAsync`) e preenche a propriedade `[BindProperty] Student` para exibir no formulário.
+    2. `OnPostAsync(int id)`:
         * **Solução (B) "Buscar Original e Comparar":** O método primeiro busca a entidade original do banco: `var studentToUpdate = await _context.Students.FindAsync(id)`.
         * Em seguida, usa `await TryUpdateModelAsync<Student>(studentToUpdate, "Student", s => s.FirstMidName, s => s.LastName, ...)` para aplicar *apenas* os campos permitidos do formulário na entidade que o `DbContext` está a rastrear.
         * Isto previne *overposting* e gera um SQL de `UPDATE` eficiente, que atualiza apenas os campos alterados (estado `Modified`).
 
 * **Implementação em MVC:**
-    1.  `Edit(int? id)` [GET]: Busca o estudante (com `FindAsync`) e passa-o para a `View`: `return View(student)`.
-    2.  `Edit(int id, [Bind("ID,LastName,...")] Student student)` [POST]:
+    1. `Edit(int? id)` [GET]: Busca o estudante (com `FindAsync`) e passa-o para a `View`: `return View(student)`.
+    2. `Edit(int id, [Bind("ID,LastName,...")] Student student)` [POST]:
         * **Solução (A) "Trocar Tudo" (com segurança):** O `Model Binder` cria um *novo* objeto `student` com os dados do formulário, graças ao `[Bind]`.
         * O código valida o ID (`id == student.ID`).
         * Em seguida, usa `_context.Update(student)`. Isto anexa a entidade "desconectada" ao `DbContext` e marca *todas* as suas propriedades (listadas no `[Bind]`) como `Modified`.
         * Gera um SQL de `UPDATE` que atualiza *todas* as colunas, mesmo as que não foram alteradas.
 
 * **Análise Comparativa:**
-    * Ambas as abordagens separam GET e POST e previnem *overposting* (CSRF e `[Bind]`/`TryUpdateModelAsync`).
-    * **Diferença Chave de Estratégia:** O tutorial de Razor Pages opta por uma leitura extra da base de dados no `POST` (`FindAsync`) para usar `TryUpdateModelAsync`. Isto é mais eficiente a nível de SQL (só atualiza o que mudou).
-    * O tutorial de MVC opta por usar `_context.Update()` no objeto vindo do `Model Binder`. Isto evita a leitura extra no `POST`, mas é menos eficiente a nível de SQL (atualiza todos os campos).
-    * Ambas as plataformas *podem* usar ambas as estratégias (`TryUpdateModelAsync` existe no MVC e `_context.Update` existe no Razor Pages), mas os tutoriais mostram as abordagens mais comuns para cada uma.
+  * Ambas as abordagens separam GET e POST e previnem *overposting* (CSRF e `[Bind]`/`TryUpdateModelAsync`).
+  * **Diferença Chave de Estratégia:** O tutorial de Razor Pages opta por uma leitura extra da base de dados no `POST` (`FindAsync`) para usar `TryUpdateModelAsync`. Isto é mais eficiente a nível de SQL (só atualiza o que mudou).
+  * O tutorial de MVC opta por usar `_context.Update()` no objeto vindo do `Model Binder`. Isto evita a leitura extra no `POST`, mas é menos eficiente a nível de SQL (atualiza todos os campos).
+  * Ambas as plataformas *podem* usar ambas as estratégias (`TryUpdateModelAsync` existe no MVC e `_context.Update` existe no Razor Pages), mas os tutoriais mostram as abordagens mais comuns para cada uma.
 
 ### 4.5. Excluir Entidades (Delete)
 
 * **Implementação em Razor Pages:**
-    1.  `OnGetAsync(int? id)`: Busca o estudante e armazena na propriedade `Student` para exibir os dados de confirmação.
-    2.  `OnPostAsync(int id)`: Busca o estudante com `FindAsync(id)`, o remove com `_context.Students.Remove(student)` (marcando-o como `Deleted`), e salva as alterações.
+    1. `OnGetAsync(int? id)`: Busca o estudante e armazena na propriedade `Student` para exibir os dados de confirmação.
+    2. `OnPostAsync(int id)`: Busca o estudante com `FindAsync(id)`, o remove com `_context.Students.Remove(student)` (marcando-o como `Deleted`), e salva as alterações.
 
 * **Implementação em MVC:**
-    1.  `Delete(int? id)` [GET]: Busca o estudante e passa-o para a `View` de confirmação.
-    2.  `DeleteConfirmed(int id)` [POST]: Uma *Action* separada (geralmente com `[HttpPost, ActionName("Delete")]`) é usada para o POST.
-    3.  A lógica é idêntica: busca com `FindAsync(id)`, remove com `_context.Students.Remove(student)` (estado `Deleted`), e salva.
+    1. `Delete(int? id)` [GET]: Busca o estudante e passa-o para a `View` de confirmação.
+    2. `DeleteConfirmed(int id)` [POST]: Uma *Action* separada (geralmente com `[HttpPost, ActionName("Delete")]`) é usada para o POST.
+    3. A lógica é idêntica: busca com `FindAsync(id)`, remove com `_context.Students.Remove(student)` (estado `Deleted`), e salva.
 
 * **Análise Comparativa:**
-    * A lógica e a abordagem são **praticamente idênticas** em ambas as arquiteturas.
+  * A lógica e a abordagem são **praticamente idênticas** em ambas as arquiteturas.
 
 ### 4.6. Análise de Conceitos-Chave do CRUD
 
 Vários conceitos são fundamentais para o funcionamento do CRUD em ASP.NET Core e aplicam-se a *ambas* as arquiteturas.
 
 * **Separação GET vs. POST:**
-    * **Porquê?** Como explicaste, esta é uma convenção fundamental da web.
-    * **GET (Buscar):** Deve ser uma operação segura e *idempotente* (pode ser repetida sem causar efeitos colaterais). É usada para *mostrar* a página (o formulário de criação, o formulário de edição pré-preenchido, a página de confirmação de exclusão).
-    * **POST (Alterar):** É usada para enviar dados que *modificam* o estado no servidor (criar um registo, atualizar um registo, excluir um registo). Não é idempotente.
+  * **Porquê?** Como explicaste, esta é uma convenção fundamental da web.
+  * **GET (Buscar):** Deve ser uma operação segura e *idempotente* (pode ser repetida sem causar efeitos colaterais). É usada para *mostrar* a página (o formulário de criação, o formulário de edição pré-preenchido, a página de confirmação de exclusão).
+  * **POST (Alterar):** É usada para enviar dados que *modificam* o estado no servidor (criar um registo, atualizar um registo, excluir um registo). Não é idempotente.
 
 * **Auxiliares de Marcação (Tag Helpers):**
-    * Ambas as arquiteturas usam exatamente os mesmos *Tag Helpers* nas *Views* (`.cshtml`).
-    * `label`, `input`, `span asp-validation-for`: Geram o HTML para os campos do modelo e exibem mensagens de validação.
-    * `asp-action`, `asp-controller`, `asp-page`, `asp-route-id`: Geram os links (`<a>`) e URLs de *action* do formulário (`<form>`) de forma correta, garantindo que o roteamento funcione.
-    * **Conclusão:** A camada de *View* é partilhada e idêntica.
+  * Ambas as arquiteturas usam exatamente os mesmos *Tag Helpers* nas *Views* (`.cshtml`).
+  * `label`, `input`, `span asp-validation-for`: Geram o HTML para os campos do modelo e exibem mensagens de validação.
+  * `asp-action`, `asp-controller`, `asp-page`, `asp-route-id`: Geram os links (`<a>`) e URLs de *action* do formulário (`<form>`) de forma correta, garantindo que o roteamento funcione.
+  * **Conclusão:** A camada de *View* é partilhada e idêntica.
 
 * **O Problema dos Dados Desconectados (Estados da Entidade):**
-    * Como a tua analogia da "fotocópia" descreveu, o `DbContext` tem um ciclo de vida *por requisição* (é *Scoped*). O `DbContext` do `GET` é destruído. Um `DbContext` *novo* é criado para o `POST`.
-    * Este novo `DbContext` não sabe nada sobre a entidade original ("fotocópia rabiscada").
-    * **Estados do EF Core:** Para resolver isto, temos de dizer ao novo `DbContext` o que fazer:
-        * `_context.Add(student)`: Diz "Esta entidade é nova" (estado `Added`). O `SaveChanges` fará um `INSERT`.
-        * `_context.Update(student)`: Diz "Esta entidade existe mas foi modificada" (estado `Modified`). O `SaveChanges` fará um `UPDATE` para *todas* as colunas.
-        * `_context.Remove(student)`: Diz "Esta entidade deve ser apagada" (estado `Deleted`). O `SaveChanges` fará um `DELETE`.
-        * `TryUpdateModelAsync(studentToUpdate, ...)`: Este é o método mais inteligente. Ele usa uma entidade *já rastreada* (`studentToUpdate` que veio do `FindAsync`) e atualiza apenas os campos necessários, marcando-os individualmente como `Modified`.
+  * Como a tua analogia da "fotocópia" descreveu, o `DbContext` tem um ciclo de vida *por requisição* (é *Scoped*). O `DbContext` do `GET` é destruído. Um `DbContext` *novo* é criado para o `POST`.
+  * Este novo `DbContext` não sabe nada sobre a entidade original ("fotocópia rabiscada").
+  * **Estados do EF Core:** Para resolver isto, temos de dizer ao novo `DbContext` o que fazer:
+    * `_context.Add(student)`: Diz "Esta entidade é nova" (estado `Added`). O `SaveChanges` fará um `INSERT`.
+    * `_context.Update(student)`: Diz "Esta entidade existe mas foi modificada" (estado `Modified`). O `SaveChanges` fará um `UPDATE` para *todas* as colunas.
+    * `_context.Remove(student)`: Diz "Esta entidade deve ser apagada" (estado `Deleted`). O `SaveChanges` fará um `DELETE`.
+    * `TryUpdateModelAsync(studentToUpdate, ...)`: Este é o método mais inteligente. Ele usa uma entidade *já rastreada* (`studentToUpdate` que veio do `FindAsync`) e atualiza apenas os campos necessários, marcando-os individualmente como `Modified`.
 
 * **Segurança (CSRF e Overposting):**
-    * **CSRF (Cross-Site Request Forgery):**
-        * O `[ValidateAntiForgeryToken]` (no `PageModel` ou na *Action* `[HttpPost]`) trabalha em conjunto com o `<form>` (que usa o `FormTagHelper`) para gerar um *token* oculto.
-        * Isto garante que o pedido `POST` veio de um formulário gerado pela tua própria aplicação.
-        * A implementação é idêntica em ambas as arquiteturas.
-    * **Overposting (Excesso de Postagem):**
-        * Ocorre quando um utilizador mal-intencionado envia mais campos do que o formulário exibe (ex: `StudentID=1, IsAdmin=true`).
-        * Ambos os tutoriais previnem isto, mas com as estratégias diferentes que vimos na secção 4.4:
-            1.  **MVC (Tutorial):** Usa `[Bind("Prop1", "Prop2")]` no parâmetro da *Action* `[POST]`.
-            2.  **Razor Pages (Tutorial):** Usa `TryUpdateModelAsync(entidade, "prefixo", e => e.Prop1, e => e.Prop2)` no *handler* `[POST]`.
-        * Ambas são defesas eficazes. `TryUpdateModelAsync` é frequentemente considerado mais robusto, pois está mais próximo da lógica de atualização do que da definição do método.
+  * **CSRF (Cross-Site Request Forgery):**
+    * O `[ValidateAntiForgeryToken]` (no `PageModel` ou na *Action* `[HttpPost]`) trabalha em conjunto com o `<form>` (que usa o `FormTagHelper`) para gerar um *token* oculto.
+    * Isto garante que o pedido `POST` veio de um formulário gerado pela tua própria aplicação.
+    * A implementação é idêntica em ambas as arquiteturas.
+  * **Overposting (Excesso de Postagem):**
+    * Ocorre quando um utilizador mal-intencionado envia mais campos do que o formulário exibe (ex: `StudentID=1, IsAdmin=true`).
+    * Ambos os tutoriais previnem isto, mas com as estratégias diferentes que vimos na secção 4.4:
+            1. **MVC (Tutorial):** Usa `[Bind("Prop1", "Prop2")]` no parâmetro da *Action* `[POST]`.
+            2. **Razor Pages (Tutorial):** Usa `TryUpdateModelAsync(entidade, "prefixo", e => e.Prop1, e => e.Prop2)` no *handler* `[POST]`.
+    * Ambas são defesas eficazes. `TryUpdateModelAsync` é frequentemente considerado mais robusto, pois está mais próximo da lógica de atualização do que da definição do método.
 
 ## 5. Funcionalidades Avançadas de Listagem
 
@@ -715,44 +716,79 @@ Aqui, analisamos a implementação de ordenação, filtragem (pesquisa) e pagina
 ### 5.1. Ordenação, Filtro e Paginação
 
 * **O Conceito: `IQueryable` e a Execução Diferida**
-    * Ambos os tutoriais (Razor Pages e MVC) baseiam-se num conceito fundamental: construir a consulta à base de dados passo a passo, mas sem a executar.
-    * Quando escrevemos `var students = _context.Students.AsQueryable();`, não estamos a ir à base de dados. Estamos a criar um objeto `IQueryable<Student>`, que é uma **árvore de expressão** (expression tree) que representa uma *intenção* de consulta.
-    * Cada método que adicionamos (como `.Where(s => s.LastName.Contains(...))` ou `.OrderBy(s => s.LastName)`) apenas *modifica* essa árvore de expressão. A consulta **ainda não foi executada**.
-    * Isto é o **LINQ to Entities**: o Entity Framework Core analisa esta árvore de expressão C# e traduz tudo numa única e otimizada consulta SQL.
-    * A consulta só é finalmente enviada à base de dados quando um método de "materialização" é chamado, como `ToListAsync()`, `FirstOrDefaultAsync()` ou `CountAsync()`.
+  * Ambos os tutoriais (Razor Pages e MVC) baseiam-se num conceito fundamental: construir a consulta à base de dados passo a passo, mas sem a executar.
+  * Quando escrevemos `var students = _context.Students.AsQueryable();`, não estamos a ir à base de dados. Estamos a criar um objeto `IQueryable<Student>`, que é uma **árvore de expressão** (expression tree) que representa uma *intenção* de consulta.
+  * Cada método que adicionamos (como `.Where(s => s.LastName.Contains(...))` ou `.OrderBy(s => s.LastName)`) apenas *modifica* essa árvore de expressão. A consulta **ainda não foi executada**.
+  * Isto é o **LINQ to Entities**: o Entity Framework Core analisa esta árvore de expressão C# e traduz tudo numa única e otimizada consulta SQL.
+  * A consulta só é finalmente enviada à base de dados quando um método de "materialização" é chamado, como `ToListAsync()`, `FirstOrDefaultAsync()` ou `CountAsync()`.
 
 * **O Anti-Padrão (`IEnumerable`)**
-    * Se, por engano, chamássemos `ToListAsync()` *antes* de aplicar os filtros (ex: `var students = await _context.Students.ToListAsync(); var filtered = students.Where(...);`), estaríamos a usar **LINQ to Objects**.
-    * Isto traria **todos** os registos da tabela `Students` para a memória do servidor web e só *depois* aplicaria o filtro. Numa tabela com milhares de linhas, isto seria desastroso para a performance.
-    * **Conclusão:** O sucesso desta funcionalidade depende de manter a consulta como `IQueryable` o máximo de tempo possível.
+  * Se, por engano, chamássemos `ToListAsync()` *antes* de aplicar os filtros (ex: `var students = await _context.Students.ToListAsync(); var filtered = students.Where(...);`), estaríamos a usar **LINQ to Objects**.
+  * Isto traria **todos** os registos da tabela `Students` para a memória do servidor web e só *depois* aplicaria o filtro. Numa tabela com milhares de linhas, isto seria desastroso para a performance.
+  * **Conclusão:** O sucesso desta funcionalidade depende de manter a consulta como `IQueryable` o máximo de tempo possível.
 
 * **Implementação em Razor Pages:**
-    1.  O método `OnGetAsync(string sortOrder, string currentFilter, string searchString, int? pageIndex)` recebe todos os parâmetros da URL.
-    2.  O `searchString` (termo de pesquisa) é frequentemente associado a uma propriedade `[BindProperty(SupportsGet = true)]` para repopular o campo de busca.
-    3.  A lógica reside no `OnGetAsync`:
+    1. O método `OnGetAsync(string sortOrder, string currentFilter, string searchString, int? pageIndex)` recebe todos os parâmetros da URL.
+    2. O `searchString` (termo de pesquisa) é frequentemente associado a uma propriedade `[BindProperty(SupportsGet = true)]` para repopular o campo de busca.
+    3. A lógica reside no `OnGetAsync`:
         * Inicia com `IQueryable<Student> studentsIQ = _context.Students.AsQueryable();`
         * Aplica o filtro: `if (!String.IsNullOrEmpty(searchString)) { studentsIQ = studentsIQ.Where(...); }`
         * Aplica a ordenação: `switch (sortOrder) { ... studentsIQ = studentsIQ.OrderBy(...); }`
         * Finalmente, a paginação (que usa `.Skip()` e `.Take()`) e a materialização (`ToListAsync()`) são encapsuladas na classe `PaginatedList.CreateAsync(studentsIQ.AsNoTracking(), pageIndex ?? 1, ...)`
-    4.  O resultado (`PaginatedList`) é atribuído a uma propriedade pública do `PageModel` para a View usar.
+    4. O resultado (`PaginatedList`) é atribuído a uma propriedade pública do `PageModel` para a View usar.
 
 * **Implementação em MVC:**
-    1.  A `Action` `Index(string sortOrder, string currentFilter, string searchString, int? pageIndex)` recebe os mesmos parâmetros.
-    2.  Valores como `ViewData["CurrentSort"]` são usados para passar o estado atual para a *View*, para que os links de ordenação e paginação possam ser construídos corretamente.
-    3.  A lógica reside na `Action Index`:
+    1. A `Action` `Index(string sortOrder, string currentFilter, string searchString, int? pageIndex)` recebe os mesmos parâmetros.
+    2. Valores como `ViewData["CurrentSort"]` são usados para passar o estado atual para a *View*, para que os links de ordenação e paginação possam ser construídos corretamente.
+    3. A lógica reside na `Action Index`:
         * Inicia com `var students = _context.Students.AsQueryable();` (O `var` aqui é inferido como `IQueryable<Student>`).
         * Aplica o filtro: `if (!String.IsNullOrEmpty(searchString)) { students = students.Where(...); }`
         * Aplica a ordenação: `switch (sortOrder) { ... students = students.OrderBy(...); }`
         * A mesma classe `PaginatedList.CreateAsync(students.AsNoTracking(), pageIndex ?? 1, ...)` é usada para executar a consulta.
-    4.  O resultado (`PaginatedList`) é passado diretamente para a *View*: `return View(await PaginatedList.CreateAsync(...));`.
+    4. O resultado (`PaginatedList`) é passado diretamente para a *View*: `return View(await PaginatedList.CreateAsync(...));`.
 
 * **Análise Comparativa:**
-    * A lógica de negócio é **absolutamente idêntica**. O código dentro do `OnGetAsync()` (Razor Pages) e da `Action Index()` (MVC) é o mesmo em 99%. A classe `PaginatedList.cs` é partilhada e reutilizada sem qualquer modificação.
-    * A única diferença é o "encanamento": Razor Pages armazena o resultado numa propriedade do `PageModel`, enquanto MVC passa o resultado como o modelo no `return View()`.
+  * A lógica de negócio é **absolutamente idêntica**. O código dentro do `OnGetAsync()` (Razor Pages) e da `Action Index()` (MVC) é o mesmo em 99%. A classe `PaginatedList.cs` é partilhada e reutilizada sem qualquer modificação.
+  * A única diferença é o "encanamento": Razor Pages armazena o resultado numa propriedade do `PageModel`, enquanto MVC passa o resultado como o modelo no `return View()`.
 
 * **A Implementação do Filtro (Pesquisa) e o `method="get"`**
-    * Ambos os tutoriais implementam o formulário de pesquisa (`<form>`) usando o **método HTTP GET** (`<form method="get">`).
-    * Isto é uma prática recomendada pelas **diretrizes do W3C** para operações que são *idempotentes* (ou seja, seguras de repetir, como uma pesquisa, que não altera dados).
-    * Ao usar `method="get"`, os parâmetros do formulário (ex: `searchString=...`) são adicionados à URL como *query strings*.
-    * **Vantagem:** O utilizador pode marcar a página de resultados da pesquisa, copiar o link e partilhá-lo com outros, e o link conterá os termos da pesquisa.
-    * O `FormTagHelper` (`<form asp-page="/Students/Index" method="get">` ou `<form asp-action="Index" method="get">`) gera este HTML corretamente em ambas as arquiteturas.
+  * Ambos os tutoriais implementam o formulário de pesquisa (`<form>`) usando o **método HTTP GET** (`<form method="get">`).
+  * Isto é uma prática recomendada pelas **diretrizes do W3C** para operações que são *idempotentes* (ou seja, seguras de repetir, como uma pesquisa, que não altera dados).
+  * Ao usar `method="get"`, os parâmetros do formulário (ex: `searchString=...`) são adicionados à URL como *query strings*.
+  * **Vantagem:** O utilizador pode marcar a página de resultados da pesquisa, copiar o link e partilhá-lo com outros, e o link conterá os termos da pesquisa.
+  * O `FormTagHelper` (`<form asp-page="/Students/Index" method="get">` ou `<form asp-action="Index" method="get">`) gera este HTML corretamente em ambas as arquiteturas.
+
+## 6. Gestão do Esquema da Base de Dados com Migrations
+
+Assim como a definição dos modelos e do `DbContext` (Secção 3), o processo de gestão das alterações do **esquema da base de dados** é uma responsabilidade exclusiva do Entity Framework Core e é **100% idêntico** em ambas as arquiteturas.
+
+### 6.1. O Processo de Migrations
+
+O EF Core Migrations é a ferramenta usada para manter o esquema da base de dados sincronizado com o modelo de dados C# (as tuas classes de entidade).
+
+* **Ferramentas:** O processo requer o pacote NuGet `Microsoft.EntityFrameworkCore.Tools`. Os comandos podem ser executados de duas formas, que são funcionalmente idênticas:
+    1. **PMC (Package Manager Console):** Uma consola dentro do Visual Studio (ex: `Add-Migration ...`).
+    2. **CLI (Command-line Interface):** A linha de comandos do .NET (ex: `dotnet ef migrations add ...`).
+
+* **Alternativa (`EnsureCreated`):** O método `context.Database.EnsureCreated()` é uma alternativa que *cria* a base de dados se ela não existir, mas **não pode atualizá-la** se o modelo C# mudar. Os tutoriais de ambos os projetos evitam este método, pois ele é mutuamente exclusivo com as Migrations, que é a abordagem profissional e preferida para a evolução do esquema.
+
+### 6.2. Análise Comparativa do Fluxo
+
+O fluxo de trabalho é o mesmo, quer se esteja num projeto Razor Pages ou MVC:
+
+1. **`Add-Migration <NomeDaMigracao>`** (ex: `Add-Migration InitialCreate`):
+    * Este comando compara o estado atual das classes do modelo (lido a partir do `DbContext`) com o último **instantâneo** do esquema.
+    * Como é a primeira migração, ele gera o ficheiro `<timestamp>_InitialCreate.cs`, que contém o código C# nos métodos `Up()` (para criar todas as tabelas) e `Down()` (para apagá-las).
+    * Ele também cria (ou atualiza) o ficheiro `Migrations/SchoolContextModelSnapshot.cs`. Este ficheiro é um **instantâneo do esquema de base de dados atual** e é fundamental; é contra ele que a *próxima* migração será comparada para detetar alterações.
+
+2. **`Update-Database`**:
+    * Este comando executa todas as migrações pendentes.
+    * Ele verifica a tabela `__EFMigrationsHistory` na base de dados para saber quais migrações já foram aplicadas.
+    * Como a `InitialCreate` ainda não foi aplicada, ele executa o método `Up()` desse ficheiro, criando fisicamente todas as tabelas no SQL Server.
+    * Após a conclusão bem-sucedida, ele adiciona um registo na tabela `__EFMigrationsHistory`.
+
+* **Verificação:** Em ambos os projetos, o **Pesquisador de Objetos do SQL Server (SSOX)** é usado para verificar visualmente se as tabelas foram criadas corretamente, incluindo a tabela `__EFMigrationsHistory`.
+
+* **Outros Comandos:** Comandos como `Remove-Migration` (que remove o último ficheiro de migração e reverte o instantâneo) também funcionam da mesma forma em ambos os projetos.
+
+**Conclusão:** Esta etapa reforça que o EF Core é uma camada de infraestrutura completamente desacoplada da UI. A forma como geres, crias e atualizas a tua base de dados não é afetada pela tua escolha entre Razor Pages e MVC.
