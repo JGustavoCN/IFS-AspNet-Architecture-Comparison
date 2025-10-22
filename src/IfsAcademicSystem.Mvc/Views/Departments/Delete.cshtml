@@ -1,0 +1,50 @@
+﻿@model IfsAcademicSystem.Mvc.Models.Department
+
+@{
+    ViewData["Title"] = "Excluir";
+}
+
+<h2>Excluir</h2>
+
+<p class="text-danger">@ViewData["ConcurrencyErrorMessage"]</p>
+
+<h3>Você tem certeza que quer excluir isso?</h3>
+<div>
+    <h4>Departamento</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Budget)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Budget)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.StartDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.StartDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Administrator)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Administrator.FullName)
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="DepartmentID" />
+        <input type="hidden" asp-for="ConcurrencyToken" />
+        <div class="form-actions no-color">
+            <input type="submit" value="Excluir" class="btn btn-default" /> |
+            <a asp-action="Index">Voltar á lista</a>
+        </div>
+    </form>
+</div>

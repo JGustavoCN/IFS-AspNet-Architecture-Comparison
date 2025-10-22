@@ -995,3 +995,73 @@ Se a *leitura* de dados relacionados (Secção 8) demonstrou a eficiência do EF
   * Este atributo (mencionado nos conceitos) é usado em MVC quando o nome do método C# não corresponde ao nome da *Action* que o roteamento espera.
   * É mais comum na funcionalidade `Delete`, onde temos uma `Action` `Delete(int id)` [GET] e outra `DeleteConfirmed(int id)` [POST]. Para que a segunda `Action` responda ao `POST` de `/Delete/5`, usamos `[HttpPost, ActionName("Delete")]`.
   * Em Razor Pages, isto não é necessário, pois os *handlers* já são nomeados por convenção (`OnGet`, `OnPost`).
+
+## 10. Tratamento de Conflitos de Simultaneidade
+
+**Conflitos de simultaneidade** ocorrem quando um utilizador exibe os dados de uma entidade para editá-los e, em seguida, outro utilizador atualiza os dados dessa mesma entidade antes que o primeiro utilizador salve as suas alterações.
+
+### 10.1. Conceitos: Simultaneidade Otimista vs. Pessimista
+
+* **Simultaneidade Pessimista (Bloqueio):** Envolve bloquear os dados no momento em que são lidos, impedindo que outros utilizadores os alterem. O EF Core não oferece suporte interno para isto, e não é uma abordagem prática para aplicações web.
+* **Simultaneidade Otimista (Deteção):** Permite que qualquer pessoa leia os dados. No momento de salvar (`SaveChanges()`), o sistema *deteta* se os dados foram alterados por outra pessoa desde que foram lidos. Esta é a abordagem padrão para a web.
+  * **Estratégia "O Cliente Vence" (O último vence):** As alterações do utilizador atual sobrescrevem quaisquer alterações anteriores. Este é o comportamento padrão do EF Core *sem* tratamento de simultaneidade e pode levar à perda de dados.
+  * **Estratégia "O Armazenamento Vence" (Store Wins):** As alterações do utilizador atual são descartadas se a base de dados tiver sido alterada. O utilizador é notificado com uma mensagem de erro. Esta é a estratégia implementada por ambos os tutoriais.
+
+### 10.2. A Solução (Comum a Ambos): O Token de Acompanhamento
+
+Ambos os tutoriais implementam a simultaneidade otimista usando uma coluna de acompanhamento na base de dados.
+
+* **Implementação no Modelo:**
+    1. Como reutilizámos a pasta `Models` do projeto Razor Pages, a entidade `Department` (e outras) possui a propriedade:
+
+        ```csharp
+        [Timestamp]
+        public byte[] ConcurrencyToken { get; set; }
+        ```
+
+    2. O atributo `[Timestamp]` (apesar do nome, que vem de versões antigas do SQL Server) mapeia esta propriedade para uma coluna `rowversion` no SQL Server. Esta coluna é atualizada automaticamente pela base de dados sempre que a linha sofre um `UPDATE`.
+    3. Isto também pode ser configurado via **API Fluente** no `DbContext` com `.Property(p => p.ConcurrencyToken).IsRowVersion()`.
+
+* **Fluxo de Deteção (Idêntico):**
+    1. **GET:** A página/view de Edição carrega o `Department` e inclui o valor do `ConcurrencyToken` num campo oculto (`<input type="hidden" asp-for="ConcurrencyToken" />`).
+    2. **POST:** O formulário é enviado com os novos valores (ex: `Budget`) e o valor *original* do `ConcurrencyToken` (de quando a página foi carregada).
+    3. **SaveChanges():** O EF Core gera um comando `UPDATE` que inclui o token na cláusula `WHERE`:
+        `UPDATE Department SET Budget = @p0, ... WHERE DepartmentID = @p1 AND ConcurrencyToken = @p2`
+    4. **Conflito:** Se outro utilizador (Alice) salvou alterações depois de o utilizador atual (Júlio) ter carregado a página, o `ConcurrencyToken` na base de dados será diferente do valor em `@p2`. O `UPDATE` falha em encontrar uma linha (0 linhas afetadas).
+    5. **Exceção:** O EF Core vê que 0 linhas foram afetadas (quando esperava 1) e lança uma `DbUpdateConcurrencyException`.
+
+### 10.3. Implementação e Análise Comparativa (Tratando a Exceção)
+
+Ambas as arquiteturas implementam a mesma lógica "Store Wins" dentro de um bloco `try...catch`.
+
+* **Implementação em Razor Pages (`Pages/Departments/Edit.cshtml.cs`):**
+    1. O `OnPostAsync()` envolve a lógica de salvamento num `try...catch`.
+    2. No `catch (DbUpdateConcurrencyException ex)`:
+        * Obtém a entrada com falha: `var entry = ex.Entries.Single();`
+        * Obtém os valores atuais da base de dados: `var databaseValues = entry.GetDatabaseValues();`
+        * Recarrega o `ConcurrencyToken` do `PageModel` com o novo valor da base de dados: `entry.Property("ConcurrencyToken").OriginalValue = databaseValues["ConcurrencyToken"];`
+        * **Ponto-chave:** Usa `ModelState.Remove("Department.ConcurrencyToken")` para forçar o *Tag Helper* (`asp-for`) a usar o novo valor da propriedade do modelo, em vez de usar o valor antigo que veio no `POST` e está no `ModelState`.
+    3. Re-exibe a página com a mensagem de erro: `return Page();`.
+
+* **Implementação em MVC (`Controllers/DepartmentsController.cs`):**
+    1. A `Action Edit(int id, byte[] concurrencyToken)` [POST] envolve a lógica num `try...catch`.
+    2. No `catch (DbUpdateConcurrencyException ex)`:
+        * Faz o mesmo: obtém `entry`, `databaseValues`, etc.
+        * Obtém o `Department` com os valores da base de dados.
+        * Define o *novo* valor do token no modelo que será enviado de volta para a View: `departmentFromDb.ConcurrencyToken = (byte[])databaseValues["ConcurrencyToken"];`
+        * **Ponto-chave:** Não precisa de `ModelState.Remove`. Ao passar o `departmentFromDb` atualizado para `return View(departmentFromDb)`, o *Tag Helper* (`asp-for`) lê o valor diretamente deste novo objeto de modelo.
+    3. Re-exibe a *View* com a mensagem de erro: `return View(departmentFromDb);`.
+
+* **Análise:** A lógica de negócio é idêntica. A única diferença técnica é como cada arquitetura limpa o valor antigo do `ConcurrencyToken` do `ModelState` para evitar um *loop* de erros: Razor Pages manipula o `ModelState` diretamente (`ModelState.Remove`), enquanto o MVC passa um objeto de modelo completamente novo para a `View`.
+
+### 10.4. O Desafio Prático: Model Binding (Análise Específica do Projeto)
+
+Durante a implementação do MVC, surgiu um problema prático crucial que não existe no Razor Pages.
+
+* **O Problema:** O nosso modelo partilhado usa a propriedade `ConcurrencyToken`. A *View* MVC (`Edit.cshtml`) gera, portanto, um campo oculto com `name="ConcurrencyToken"`. No entanto, o tutorial original do MVC sugere uma assinatura de *Action* [POST] como:
+    `public async Task<IActionResult> Edit(int id, [Bind(...)] Department department, byte[] rowVersion)`
+* **A Falha:** O *Model Binder* do MVC falhou. Ele via o valor `ConcurrencyToken` vindo do formulário, mas não encontrava nenhum parâmetro de *Action* chamado `concurrencyToken`. O parâmetro `rowVersion` permanecia `null`, e o `[Bind]` no `department` não incluía o token.
+* **A Solução:** A assinatura da *Action* [POST] do MVC teve que ser alterada para corresponder *exatamente* aos dados que chegam do formulário. A forma mais limpa (usada no tutorial de MVC) é adicionar o token como um parâmetro de método com o nome correto:
+    `public async Task<IActionResult> Edit(int id, byte[] concurrencyToken)`
+    *(E, claro, usar `concurrencyToken` dentro do `try...catch`)*
+* **Conclusão Comparativa:** Isto expõe uma diferença fundamental. O `[BindProperty]` do Razor Pages lida com o *binding* de todas as propriedades do modelo (incluindo o token) de forma mais automática. O MVC, ao usar parâmetros de *Action* e o atributo `[Bind]`, exige uma correspondência manual mais explícita entre os nomes dos campos do formulário (definidos pelo `asp-for` no modelo) e os nomes dos parâmetros no método do `Controller`.
