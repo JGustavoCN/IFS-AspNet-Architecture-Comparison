@@ -1065,3 +1065,48 @@ Durante a implementação do MVC, surgiu um problema prático crucial que não e
     `public async Task<IActionResult> Edit(int id, byte[] concurrencyToken)`
     *(E, claro, usar `concurrencyToken` dentro do `try...catch`)*
 * **Conclusão Comparativa:** Isto expõe uma diferença fundamental. O `[BindProperty]` do Razor Pages lida com o *binding* de todas as propriedades do modelo (incluindo o token) de forma mais automática. O MVC, ao usar parâmetros de *Action* e o atributo `[Bind]`, exige uma correspondência manual mais explícita entre os nomes dos campos do formulário (definidos pelo `asp-for` no modelo) e os nomes dos parâmetros no método do `Controller`.
+
+## 11. Padrões de Herança no Modelo de Dados
+
+Embora esta secção seja exclusiva do tutorial de MVC, a implementação da herança no modelo de dados foi aplicada a *ambos* os projetos (MVC e Razor Pages) para manter a consistência da camada de dados partilhada.
+
+### 11.1. Conceitos: Estratégias de Herança do EF Core
+
+O EF Core suporta várias estratégias para mapear uma hierarquia de classes C# (ex: `Person` como classe base, `Student` e `Instructor` como classes derivadas) para uma base de dados SQL:
+
+1. **TPH (Tabela por Hierarquia):** É a estratégia padrão e a demonstrada neste tutorial. Uma *única tabela* (ex: `People`) armazena os dados de *todas* as classes da hierarquia. Uma coluna especial, chamada "Discriminador", é usada para identificar a que classe (`Student` ou `Instructor`) cada linha pertence.
+2. **TPT (Tabela por Tipo):** Cada classe (base e derivadas) tem a sua própria tabela. A tabela `Students` teria apenas colunas de `Student` e uma FK para a tabela `People`, que teria os campos comuns. (Suportado no EF Core 5+).
+3. **TPC (Tabela por Classe Concreta):** Cada classe *concreta* (ex: `Student` e `Instructor`) tem a sua própria tabela completa, com todas as suas propriedades, incluindo as herdadas. A classe base (`Person`) não tem uma tabela.
+
+### 11.2. O Desafio: Corrigindo uma Falha no Tutorial
+
+Durante a implementação, foi identificada uma falha crítica no tutorial oficial do MVC, que mistura perigosamente as estratégias TPT e TPH:
+
+* **A Dessincronização do Tutorial:**
+    1. **Configuração do `DbContext`:** O tutorial instrui a manter mapeamentos de tabelas separados (`modelBuilder.Entity<Student>().ToTable("Estudantes");`, `...ToTable("Instrutores")`). Isto configura o `DbContext` para esperar uma estratégia **TPT (Tabela por Tipo)**.
+    2. **Script de Migração:** Em seguida, o tutorial manda substituir a migração automática por um *script* SQL manual que renomeia `Instrutores` para `Pessoas`, move os dados de `Estudantes` para `Pessoas`, adiciona uma coluna `Discriminator` e apaga a tabela `Estudantes`. Isto implementa manualmente uma estratégia **TPH (Tabela por Hierarquia)**.
+
+* **O Risco:** Esta dessincronização quebraria a aplicação. O `DbContext` (pensando em TPT) tentaria fazer consultas a uma tabela `Estudantes` que o *script* de migração (forçando TPH) teria apagado.
+
+### 11.3. A Solução (Aplicada em Ambos os Projetos)
+
+Para implementar corretamente a herança TPH num banco de dados com dados existentes, a seguinte correção em duas etapas foi aplicada (de forma idêntica) em ambos os projetos:
+
+1. **Correção no `DbContext` (`SchoolContext.cs`):**
+    * Para alinhar o `DbContext` com a estratégia TPH, os mapeamentos de tabelas das classes filhas foram **removidos** do `OnModelCreating`.
+    * **Removido:** `modelBuilder.Entity<Student>().ToTable("Estudantes");`
+    * **Removido:** `modelBuilder.Entity<Instructor>().ToTable("Instrutores");`
+    * **Mantido:** `modelBuilder.Entity<Person>().ToTable("Pessoas");` (ou `Person`, dependendo da convenção).
+    * Isto força o EF Core a entender que `Student` e `Instructor` são parte da tabela `Pessoas`.
+
+2. **Manutenção da Migração Manual (`Migrations/..._Inheritance.cs`):**
+    * Mesmo com o `DbContext` corrigido, a migração gerada automaticamente (com `Add-Migration`) apenas tentaria apagar a tabela `Estudantes`, causando **perda total de dados**.
+    * Portanto, foi essencial manter o *script* de migração manual do tutorial. Este *script* atua como o "camião de mudanças", executando `migrationBuilder.Sql(...)` para *mover* os dados de `Estudantes` para a nova tabela `Pessoas` e corrigir as chaves estrangeiras (`Enrollment`) *antes* de, com segurança, apagar a tabela `Estudantes` original.
+
+### 11.4. Análise Comparativa
+
+Esta é a prova final da tese central deste comparativo: a camada de dados é agnóstica à UI.
+
+* **Implementação Idêntica:** A implementação deste padrão de herança complexo foi **100% idêntica** em ambos os projetos.
+* **Separação de Responsabilidades:** Toda a lógica residiu exclusivamente na camada de dados (`Models/`, `Data/SchoolContext.cs`, `Migrations/`).
+* **Transparência para a UI:** A UI (seja o `StudentsController` do MVC ou o `PageModel` `Students/Index` do Razor Pages) continua a fazer a mesma consulta: `_context.Students.ToListAsync()`. Ela não precisa de saber que, "debaixo do capô", o EF Core está agora a consultar a tabela `Pessoas` e a filtrar por `WHERE Discriminator = 'Student'`.

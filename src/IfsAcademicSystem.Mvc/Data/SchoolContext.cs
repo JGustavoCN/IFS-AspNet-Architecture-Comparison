@@ -16,19 +16,18 @@ namespace IfsAcademicSystem.Mvc.Data
         public DbSet<Department> Departments { get; set; }
         public DbSet<Instructor> Instructors { get; set; }
         public DbSet<OfficeAssignment> OfficeAssignments { get; set; }
-
+        public DbSet<Person> People { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Mapeia as entidades para tabelas com nomes em português.
             modelBuilder.Entity<Course>().ToTable("Cursos");
             modelBuilder.Entity<Enrollment>().ToTable("Matriculas");
-            modelBuilder.Entity<Student>().ToTable("Estudantes");
+            // removido por causa do uso de herança TPH modelBuilder.Entity<Student>().ToTable("Estudantes");
             modelBuilder.Entity<Department>().ToTable("Departamentos");
-            modelBuilder.Entity<Instructor>().ToTable("Instrutores");
+            // removido por causa do uso de herança TPH  modelBuilder.Entity<Instructor>().ToTable("Instrutores");
             modelBuilder.Entity<OfficeAssignment>().ToTable("Escritorios");
+            modelBuilder.Entity<Person>().ToTable("Pessoas");
 
-            // Configura a relação muitos-para-muitos entre Course e Instructor.
-            // O EF Core criará uma tabela de junção chamada "CourseInstructor".
             modelBuilder.Entity<Course>()
                 .HasMany(c => c.Instructors)
                 .WithMany(i => i.Courses);
@@ -36,7 +35,7 @@ namespace IfsAcademicSystem.Mvc.Data
             modelBuilder.Entity<Department>()
                 .HasMany(d => d.Courses)
                 .WithOne(c => c.Department)
-                .OnDelete(DeleteBehavior.Restrict); // Impede a exclusão de um departamento se ele tiver cursos.
+                .OnDelete(DeleteBehavior.Restrict); 
         }
     }
 }

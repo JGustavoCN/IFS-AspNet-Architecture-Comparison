@@ -123,33 +123,6 @@ namespace IfsAcademicSystem.RazorPages.Migrations
                     b.ToTable("Matriculas", (string)null);
                 });
 
-            modelBuilder.Entity("IfsAcademicSystem.RazorPages.Models.Instructor", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<string>("FirstMidName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("FirstName");
-
-                    b.Property<DateTime>("HireDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("Instrutores", (string)null);
-                });
-
             modelBuilder.Entity("IfsAcademicSystem.RazorPages.Models.OfficeAssignment", b =>
                 {
                     b.Property<int>("InstructorID")
@@ -165,7 +138,7 @@ namespace IfsAcademicSystem.RazorPages.Migrations
                     b.ToTable("Escritorios", (string)null);
                 });
 
-            modelBuilder.Entity("IfsAcademicSystem.RazorPages.Models.Student", b =>
+            modelBuilder.Entity("IfsAcademicSystem.RazorPages.Models.Person", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -173,8 +146,10 @@ namespace IfsAcademicSystem.RazorPages.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<DateTime>("EnrollmentDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
 
                     b.Property<string>("FirstMidName")
                         .IsRequired()
@@ -189,7 +164,35 @@ namespace IfsAcademicSystem.RazorPages.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Estudantes", (string)null);
+                    b.ToTable("Pessoas", (string)null);
+
+                    b.HasDiscriminator().HasValue("Person");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("IfsAcademicSystem.RazorPages.Models.Instructor", b =>
+                {
+                    b.HasBaseType("IfsAcademicSystem.RazorPages.Models.Person");
+
+                    b.Property<DateTime>("HireDate")
+                        .HasColumnType("datetime2");
+
+                    b.ToTable("Pessoas");
+
+                    b.HasDiscriminator().HasValue("Instructor");
+                });
+
+            modelBuilder.Entity("IfsAcademicSystem.RazorPages.Models.Student", b =>
+                {
+                    b.HasBaseType("IfsAcademicSystem.RazorPages.Models.Person");
+
+                    b.Property<DateTime>("EnrollmentDate")
+                        .HasColumnType("datetime2");
+
+                    b.ToTable("Pessoas");
+
+                    b.HasDiscriminator().HasValue("Student");
                 });
 
             modelBuilder.Entity("CourseInstructor", b =>
