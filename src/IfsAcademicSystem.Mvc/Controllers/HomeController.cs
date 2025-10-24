@@ -1,9 +1,10 @@
-using IfsAcademicSystem.Mvc.Models;
 using IfsAcademicSystem.Mvc.Data;
+using IfsAcademicSystem.Mvc.Models;
 using IfsAcademicSystem.Mvc.Models.SchoolViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Data.Common;
 using System.Diagnostics;
 
 namespace IfsAcademicSystem.Mvc.Controllers
@@ -37,15 +38,36 @@ namespace IfsAcademicSystem.Mvc.Controllers
 
         public async Task<ActionResult> About()
         {
-            IQueryable<EnrollmentDateGroup> data =
-                from student in _context.Students
-                group student by student.EnrollmentDate into dateGroup
-                select new EnrollmentDateGroup()
+            List<EnrollmentDateGroup> groups = new List<EnrollmentDateGroup>();
+            var conn = _context.Database.GetDbConnection();
+            try
+            {
+                await conn.OpenAsync();
+                using (var command = conn.CreateCommand())
                 {
-                    EnrollmentDate = dateGroup.Key,
-                    StudentCount = dateGroup.Count()
-                };
-            return View(await data.AsNoTracking().ToListAsync());
+                    string query = "SELECT EnrollmentDate, COUNT(*) AS StudentCount "
+                        + "FROM Pessoas "
+                        + "WHERE Discriminator = 'Student' "
+                        + "GROUP BY EnrollmentDate";
+                    command.CommandText = query;
+                    DbDataReader reader = await command.ExecuteReaderAsync();
+
+                    if (reader.HasRows)
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var row = new EnrollmentDateGroup { EnrollmentDate = reader.GetDateTime(0), StudentCount = reader.GetInt32(1) };
+                            groups.Add(row);
+                        }
+                    }
+                    reader.Dispose();
+                }
+            }
+            finally
+            {
+                conn.Close();
+            }
+            return View(groups);
         }
 
     }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore; // Necessário para EF.Property
 using IfsAcademicSystem.RazorPages.Data;
 using IfsAcademicSystem.RazorPages.Models;
 
@@ -28,12 +28,16 @@ namespace IfsAcademicSystem.RazorPages.Pages.Students
 
         public PaginatedList<Student> Students { get; set; }
 
+        // O método OnGetAsync foi atualizado
         public async Task OnGetAsync(string sortOrder,
             string currentFilter, string searchString, int? pageIndex)
         {
             CurrentSort = sortOrder;
-            NameSort = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            DateSort = sortOrder == "Date" ? "date_desc" : "Date";
+
+            // 1. ATUALIZADO: Usando nomes de propriedades reais, igual ao MVC
+            NameSort = String.IsNullOrEmpty(sortOrder) ? "LastName_desc" : "";
+            DateSort = sortOrder == "EnrollmentDate" ? "EnrollmentDate_desc" : "EnrollmentDate";
+
             if (searchString != null)
             {
                 pageIndex = 1;
@@ -47,27 +51,38 @@ namespace IfsAcademicSystem.RazorPages.Pages.Students
 
             IQueryable<Student> studentsIQ = from s in _context.Students
                                              select s;
+
             if (!String.IsNullOrEmpty(searchString))
             {
                 studentsIQ = studentsIQ.Where(s => s.LastName.Contains(searchString)
-                                       || s.FirstMidName.Contains(searchString));
-            }
-            switch (sortOrder)
-            {
-                case "name_desc":
-                    studentsIQ = studentsIQ.OrderByDescending(s => s.LastName);
-                    break;
-                case "Date":
-                    studentsIQ = studentsIQ.OrderBy(s => s.EnrollmentDate);
-                    break;
-                case "date_desc":
-                    studentsIQ = studentsIQ.OrderByDescending(s => s.EnrollmentDate);
-                    break;
-                default:
-                    studentsIQ = studentsIQ.OrderBy(s => s.LastName);
-                    break;
+                                                || s.FirstMidName.Contains(searchString));
             }
 
+            // 2. ATUALIZADO: O switch foi substituído pela lógica dinâmica do MVC
+
+            // Define a ordenação padrão se nenhuma for passada
+            if (string.IsNullOrEmpty(sortOrder))
+            {
+                sortOrder = "LastName";
+            }
+
+            bool descending = false;
+            if (sortOrder.EndsWith("_desc"))
+            {
+                sortOrder = sortOrder.Substring(0, sortOrder.Length - 5); // Remove o "_desc"
+                descending = true;
+            }
+
+            if (descending)
+            {
+                studentsIQ = studentsIQ.OrderByDescending(e => EF.Property<object>(e, sortOrder));
+            }
+            else
+            {
+                studentsIQ = studentsIQ.OrderBy(e => EF.Property<object>(e, sortOrder));
+            }
+
+            // 3. O resto do código (paginação) permanece o mesmo
             var pageSize = Configuration.GetValue("PageSize", 4);
             Students = await PaginatedList<Student>.CreateAsync(
                 studentsIQ.AsNoTracking(), pageIndex ?? 1, pageSize);

@@ -175,5 +175,27 @@ namespace IfsAcademicSystem.Mvc.Controllers
             ViewBag.DepartmentID = new SelectList(departmentsQuery.AsNoTracking(), "DepartmentID", "Name", selectedDepartment);
         }
 
+
+        public IActionResult UpdateCourseCredits()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateCourseCredits(int? multiplier)
+        {
+            if (multiplier != null)
+            {
+                ViewData["RowsAffected"] =
+                    await _context.Database.ExecuteSqlRawAsync(
+                        "UPDATE Cursos SET Credits = Credits * {0}",
+                        parameters: multiplier);
+            }
+            return View();
+        }
+
+
+
     }
 }

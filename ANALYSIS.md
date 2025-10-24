@@ -1110,3 +1110,67 @@ Esta é a prova final da tese central deste comparativo: a camada de dados é ag
 * **Implementação Idêntica:** A implementação deste padrão de herança complexo foi **100% idêntica** em ambos os projetos.
 * **Separação de Responsabilidades:** Toda a lógica residiu exclusivamente na camada de dados (`Models/`, `Data/SchoolContext.cs`, `Migrations/`).
 * **Transparência para a UI:** A UI (seja o `StudentsController` do MVC ou o `PageModel` `Students/Index` do Razor Pages) continua a fazer a mesma consulta: `_context.Students.ToListAsync()`. Ela não precisa de saber que, "debaixo do capô", o EF Core está agora a consultar a tabela `Pessoas` e a filtrar por `WHERE Discriminator = 'Student'`.
+
+## 12. Tópicos Avançados (Exclusivos do Tutorial MVC)
+
+O tutorial de MVC conclui com uma secção de "Tópicos Avançados" que não tem um equivalente direto no tutorial de Razor Pages. Isto sugere que a Microsoft direciona o MVC para cenários que podem exigir uma "fuga" do alto nível de abstração do EF Core para otimizações de baixo nível.
+
+No entanto, como esta análise demonstra, estas são funcionalidades do **Entity Framework Core**, não do MVC. Elas podem ser usadas de forma 100% idêntica num `PageModel` de Razor Pages.
+
+### 12.1. Execução de Consultas SQL Brutas (Raw SQL)
+
+O EF Core permite executar consultas SQL diretamente contra a base de dados, o que é útil para consultas complexas que o LINQ não consegue expressar facilmente.
+
+* **O Desafio: Erros Históricos no Tutorial**
+  * Durante a implementação, foram descobertas várias falhas na documentação do tutorial, que mistura métodos obsoletos com modernos.
+    1. **Erro em `FromSql`:** O tutorial sugere `_context.Departments.FromSql(query, id)`. Isto falha, pois (como a análise do código-fonte do EF Core provou) a sobrecarga de `FromSql` no EF Core 8 espera **um** argumento `FormattableString` (interpolação), enquanto a sobrecarga `FromSqlRaw` espera `(string sql, params object[] parameters)`. O tutorial misturou o nome de um com os argumentos do outro.
+    2. **Erro em `ExecuteSqlCommandAsync`:** O tutorial sugere `_context.Database.ExecuteSqlCommandAsync(...)` para atualizações em massa. Este método está obsoleto desde o EF Core 3.0.
+
+* **A Solução e Análise (Comum a Ambos):**
+    A forma correta (e segura contra **Injeção de SQL**) de executar SQL bruto é através de consultas parametrizadas, que existem em dois sabores:
+
+    1. **Método "Raw" (Placeholders):**
+        * **Para Consultas (`SELECT`):** `FromSqlRaw("... WHERE ID = {0}", id)`
+        * **Para Comandos (`UPDATE`):** `ExecuteSqlRawAsync("UPDATE ... SET Credits = Credits * {0}", multiplier)`
+        * *Análise:* Esta é a correção direta para o código do tutorial. Envia a consulta e os parâmetros separadamente para a base de dados, garantindo a segurança.
+
+    2. **Método "Interpolado" (Preferido):**
+        * **Para Consultas (`SELECT`):** `FromSql($"... WHERE ID = {id}")`
+        * **Para Comandos (`UPDATE`):** `ExecuteSqlAsync($"UPDATE ... SET Credits = Credits * {multiplier}")`
+        * *Análise:* Esta é a forma moderna. O C# converte a string interpolada (`$""`) num `FormattableString`, que o EF Core usa para criar uma consulta parametrizada segura. `FromSql` é agora um alias para `FromSqlInterpolated`.
+
+* **Conclusão Comparativa:** A capacidade de executar SQL bruto é uma funcionalidade do `DbContext`, totalmente disponível e idêntica em ambas as arquiteturas.
+
+### 12.2. O Risco do SQL Bruto: Contornar a Validação
+
+Uma descoberta crucial ao implementar os comandos de atualização em massa (como `ExecuteSqlRawAsync`) é que eles contornam completamente as regras de negócio e validação definidas no modelo C#.
+
+* **O Problema:** O modelo `Course` tem o atributo `[Range(0, 5)]` para a propriedade `Credits`. No entanto, ao executar o comando `ExecuteSqlRawAsync("UPDATE Cursos SET Credits = Credits * {0}", 3)`, os cursos com 3 créditos foram atualizados para 9.
+* **Análise (Comum a Ambos):**
+  * Os atributos de validação (`[Range]`, `[Required]`, etc.) são verificados apenas quando o EF Core está a usar o seu *Change Tracker* (Detetor de Alterações), tipicamente durante um `await _context.SaveChangesAsync()`.
+  * Comandos SQL brutos (como `ExecuteSql...`) são enviados diretamente para a base de dados, "contornando" o `DbContext`. A base de dados não tem conhecimento das regras de atributos C#.
+  * **Conclusão:** Esta é uma ferramenta poderosa que, se usada incorretamente, pode facilmente corromper a base de dados com "dados sujos" que violam as próprias regras da aplicação. A responsabilidade da validação é transferida para o programador.
+
+### 12.3. LINQ Dinâmico (`EF.Property`)
+
+* **O Problema:** A lógica de ordenação na página `Index` de Estudantes (Secção 5.1) usa um grande e verboso bloco `switch` para traduzir o parâmetro `sortOrder` (uma string) numa expressão LINQ (ex: `s => s.LastName`). Adicionar uma nova coluna para ordenação exige a alteração deste `switch`.
+
+* **A Solução (Comum a Ambos):**
+  * O tutorial de MVC introduz o método `EF.Property<object>(entity, stringPropertyName)`.
+  * Isto permite reescrever todo o bloco `switch` de forma dinâmica e extensível:
+
+    ```csharp
+    // Ex: sortOrder = "LastName"
+    students = students.OrderBy(e => EF.Property<object>(e, sortOrder));
+    ```
+
+  * **Análise:** Esta é uma otimização de código fantástica. A lógica de ordenação no `Controller` (MVC) ou `PageModel` (Razor Pages) torna-se universal. Para adicionar ordenação a uma nova coluna, basta modificar a *View* (`.cshtml`) para passar o nome correto da propriedade na string `sortOrder`, sem necessidade de alterar o código C# do *backend*.
+
+* **Conclusão Comparativa:** Embora apenas o tutorial de MVC o mostre, esta técnica `EF.Property` é uma funcionalidade do EF Core e pode (e deve) ser aplicada de forma idêntica ao `PageModel` `Students/Index.cshtml.cs` no projeto Razor Pages, para obter a mesma simplificação de código.
+
+### 12.4. Outros Conceitos (Comuns a Ambos)
+
+* **Performance (`AutoDetectChangesEnabled`):** O tutorial menciona que, para operações em *batch* (lote) de muitas entidades, desativar temporariamente o detetor de alterações (`_context.ChangeTracker.AutoDetectChangesEnabled = false;`) pode dar um grande ganho de performance, evitando que o EF Core verifique por alterações desnecessariamente.
+* **Engenharia Reversa (`scaffold-dbcontext`):** É mencionado o fluxo de trabalho "Database First" (onde as classes C# são geradas a partir de uma base de dados existente).
+
+* **Análise Final:** Todos os "Tópicos Avançados" são, na verdade, tópicos do **Entity Framework Core**. A sua inclusão no tutorial de MVC e omissão no de Razor Pages reforça a perceção de que o MVC é a arquitetura "preferida" para cenários que exigem personalização de baixo nível, embora, tecnicamente, ambas as arquiteturas tenham acesso às mesmas ferramentas.

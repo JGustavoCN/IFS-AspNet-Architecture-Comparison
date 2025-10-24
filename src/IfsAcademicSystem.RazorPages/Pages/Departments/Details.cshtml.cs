@@ -28,7 +28,12 @@ namespace IfsAcademicSystem.RazorPages.Pages.Departments
                 return NotFound();
             }
 
-            var department = await _context.Departments.FirstOrDefaultAsync(m => m.DepartmentID == id);
+            string query = "SELECT * FROM Departamentos WHERE DepartmentID = {0}";
+            var department = await _context.Departments
+                .FromSqlRaw(query, id)
+                .Include(d => d.Administrator)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
             if (department == null)
             {
                 return NotFound();
