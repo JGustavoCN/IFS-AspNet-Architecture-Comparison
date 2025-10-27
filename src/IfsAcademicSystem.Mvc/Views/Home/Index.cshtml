@@ -2,29 +2,31 @@
     ViewData["Title"] = "Página Inicial";
 }
 
-<div class="p-5 mb-4 bg-light rounded-3">
+<div class="p-5 mb-4 bg-light rounded-3 shadow-sm">
     <div class="container-fluid py-5">
-        <h1 class="display-5 fw-bold">IFS Acadêmico</h1>
-        <p class="col-md-8 fs-4">
+        <h1 class="display-4 fw-bold">IFS Acadêmico</h1>
+        <p class="col-lg-8 fs-5">
             Uma análise comparativa de arquiteturas Web com ASP.NET Core 8 e Entity Framework Core.
         </p>
         <hr class="my-4">
-        <p>Este projeto explora a implementação de um sistema acadêmico utilizando duas abordagens distintas: <strong>Razor Pages</strong> e <strong>MVC</strong>, destacando suas estruturas, fluxo de dados e casos de uso ideais.</p>
+        <p class="lead">
+            Este projeto explora a implementação de um sistema acadêmico utilizando duas abordagens distintas: <strong>Razor Pages</strong> e <strong>MVC</strong>, destacando suas estruturas, fluxo de dados e casos de uso ideais.
+        </p>
     </div>
 </div>
 
-<div class="row align-items-md-stretch">
-    <div class="col-md-6 mb-4">
-        <div class="h-100 p-5 bg-light border rounded-3">
+<div class="row align-items-md-stretch mb-4">
+    <div class="col-md-6 mb-4 mb-md-0">
+        <div class="h-100 p-5 bg-white border rounded-3 shadow-sm">
             <h2>Implementação Alternativa: Razor Pages</h2>
             <p>
                 A versão Razor Pages é um modelo de programação centrado na página onde a UI e a lógica de back-end são mantidas juntas. É ideal para aplicações focadas em formulários e operações CRUD, promovendo maior produtividade.
             </p>
         </div>
     </div>
-    <div class="col-md-6 mb-4">
-        <div class="h-100 p-5 text-white bg-dark rounded-3">
-            <h2>Implementação Atual: MVC</h2>
+    <div class="col-md-6">
+        <div class="h-100 p-5 ifs-primary-bg-mvc text-white rounded-3 shadow-sm">
+            <h2 class="ifs-highlight-color-mvc">Implementação Atual: MVC</h2>
             <p>
                 Esta versão foi desenvolvida com a arquitetura MVC (Model-View-Controller), que separa a aplicação em três componentes (Modelo, Visão e Controlador). Esta abordagem promove um baixo acoplamento e é excelente para aplicações complexas.
             </p>
@@ -32,11 +34,11 @@
     </div>
 </div>
 
-<div class="row mt-4">
+<div class="row">
     <div class="col-12">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4>Detalhes do Projeto</h4>
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header ifs-primary-bg-mvc text-white">
+                <h4 class="my-1 ifs-highlight-color-mvc">Detalhes do Projeto</h4>
             </div>
             <div class="card-body">
                 <p><strong>Instituição:</strong> Instituto Federal de Sergipe (IFS) - Campus Lagarto</p>
@@ -47,38 +49,56 @@
     </div>
 </div>
 
-<div class="row text-center">
+<div class="row text-center mt-4">
     <h2 class="mb-4">Equipe de Desenvolvimento</h2>
 
-    <div class="col-lg-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">José Gustavo C. Nascimento</h5>
+    <div class="col-lg-4 mb-4 d-flex align-items-stretch">
+        <div class="card h-100 w-100 shadow-sm team-card">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title mt-2">José Gustavo C. Nascimento</h5>
                 <p class="card-text text-muted">Matrícula: 2023004247</p>
-                <a href="https://www.linkedin.com/in/josé-gustavo-correia-nascimento-2100b2377" class="btn btn-outline-primary" target="_blank">LinkedIn</a>
-                <a href="https://github.com/JGustavoCN" class="btn btn-outline-dark" target="_blank">GitHub</a>
+                <div class="mt-auto d-flex justify-content-center">
+                    <a href="https://www.linkedin.com/in/josé-gustavo-correia-nascimento-2100b2377" class="btn btn-sm ifs-btn-outline-primary-mvc me-2" target="_blank" title="LinkedIn">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://github.com/JGustavoCN" class="btn btn-sm btn-outline-dark" target="_blank" title="GitHub">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Jeferson de Souza Andrade</h5>
+    <div class="col-lg-4 mb-4 d-flex align-items-stretch">
+        <div class="card h-100 w-100 shadow-sm team-card">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title mt-2">Jeferson de Souza Andrade</h5>
                 <p class="card-text text-muted">Matrícula: 2023001405</p>
-                <a href="https://www.linkedin.com/in/dev-jeferson-andrade/?locale=pt_BR" class="btn btn-outline-primary" target="_blank">LinkedIn</a>
-                <a href="https://github.com/jefersonae" class="btn btn-outline-dark" target="_blank">GitHub</a>
+                <div class="mt-auto d-flex justify-content-center">
+                    <a href="https://www.linkedin.com/in/dev-jeferson-andrade/?locale=pt_BR" class="btn btn-sm ifs-btn-outline-primary-mvc me-2" target="_blank" title="LinkedIn">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://github.com/jefersonae" class="btn btn-sm btn-outline-dark" target="_blank" title="GitHub">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Mariano Nascimento Santos</h5>
+    <div class="col-lg-4 mb-4 d-flex align-items-stretch">
+        <div class="card h-100 w-100 shadow-sm team-card">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title mt-2">Mariano Nascimento Santos</h5>
                 <p class="card-text text-muted">Matrícula: 2023004069</p>
-                <a href="https://www.linkedin.com/in/mariano-santos-892871272/" class="btn btn-outline-primary" target="_blank">LinkedIn</a>
-                <a href="https://github.com/marianosantts" class="btn btn-outline-dark" target="_blank">GitHub</a>
+                <div class="mt-auto d-flex justify-content-center">
+                    <a href="https://www.linkedin.com/in/mariano-santos-892871272/" class="btn btn-sm ifs-btn-outline-primary-mvc me-2" target="_blank" title="LinkedIn">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://github.com/marianosantts" class="btn btn-sm btn-outline-dark" target="_blank" title="GitHub">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>

@@ -1,44 +1,50 @@
 ﻿@model IfsAcademicSystem.Mvc.Models.Student
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Estudante";
 }
 
-<h1>Edit</h1>
-
-<h4>Student</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="card shadow-sm mt-4 col-md-8 col-lg-6 mx-auto">
+    <div class="card-header ifs-primary-bg-mvc text-white">
+        <h4 class="my-1 ifs-text-highlight-on-primary-mvc">@ViewData["Title"]: @Model.FullName</h4>
+    </div>
+    <div class="card-body">
         <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
             <input type="hidden" asp-for="ID" />
-            <div class="form-group">
-                <label asp-for="LastName" class="control-label"></label>
+
+            <div class="form-group mb-3">
+                <label asp-for="LastName" class="control-label fw-bold"></label>
                 <input asp-for="LastName" class="form-control" />
                 <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="FirstMidName" class="control-label"></label>
+
+            <div class="form-group mb-3">
+                <label asp-for="FirstMidName" class="control-label fw-bold"></label>
                 <input asp-for="FirstMidName" class="form-control" />
                 <span asp-validation-for="FirstMidName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="EnrollmentDate" class="control-label"></label>
+
+            <div class="form-group mb-3">
+                <label asp-for="EnrollmentDate" class="control-label fw-bold"></label>
                 <input asp-for="EnrollmentDate" class="form-control" />
                 <span asp-validation-for="EnrollmentDate" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <div class="card-footer bg-light text-end mt-4">
+                <button type="submit" class="btn ifs-btn-primary-mvc me-2">
+                    <i class="fas fa-save me-1"></i> Salvar
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Voltar à Lista
+                </a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -14,7 +14,7 @@ namespace IfsAcademicSystem.Mvc.Models
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         [Display(Name = "Data de Contratação")]
         public DateTime HireDate { get; set; }
-        [Display(Name = "Cursos")]
+        [Display(Name = "Cursos Ministrados")]
         public ICollection<Course> Courses { get; set; }
         [Display(Name = "Escritorio")]
         public OfficeAssignment OfficeAssignment { get; set; }

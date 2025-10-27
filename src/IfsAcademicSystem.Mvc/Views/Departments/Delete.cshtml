@@ -1,50 +1,66 @@
 ﻿@model IfsAcademicSystem.Mvc.Models.Department
 
 @{
-    ViewData["Title"] = "Excluir";
+    ViewData["Title"] = "Confirmar Exclusão";
 }
 
-<h2>Excluir</h2>
+<div class="card shadow-sm mt-4 col-md-8 col-lg-6 mx-auto">
+    <div class="card-header ifs-primary-bg-mvc text-white">
+        <h4 class="my-1 ifs-highlight-color-mvc">@ViewData["Title"]</h4>
+    </div>
+    <div class="card-body">
 
-<p class="text-danger">@ViewData["ConcurrencyErrorMessage"]</p>
-
-<h3>Você tem certeza que quer excluir isso?</h3>
-<div>
-    <h4>Departamento</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Budget)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Budget)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.StartDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.StartDate)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Administrator)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Administrator.FullName)
-        </dd>
-    </dl>
-
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="DepartmentID" />
-        <input type="hidden" asp-for="ConcurrencyToken" />
-        <div class="form-actions no-color">
-            <input type="submit" value="Excluir" class="btn btn-default" /> |
-            <a asp-action="Index">Voltar á lista</a>
+        <div class="alert alert-danger" role="alert">
+            <h5 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Atenção!</h5>
+            <p>Você tem certeza que deseja excluir permanentemente o registro deste departamento?</p>
+            @if (ViewData["ConcurrencyErrorMessage"] != null)
+            {
+                <hr>
+                <p class="mb-0 text-danger small">@ViewData["ConcurrencyErrorMessage"]</p>
+            }
         </div>
-    </form>
+
+        <h5 class="mt-4 mb-3">Detalhes do Departamento a ser Excluído:</h5>
+        <dl class="row">
+            <dt class="col-sm-4 col-lg-3 fw-bold">
+                @Html.DisplayNameFor(model => model.Name)
+            </dt>
+            <dd class="col-sm-8 col-lg-9 mb-2">
+                @Html.DisplayFor(model => model.Name)
+            </dd>
+
+            <dt class="col-sm-4 col-lg-3 fw-bold">
+                @Html.DisplayNameFor(model => model.Budget)
+            </dt>
+            <dd class="col-sm-8 col-lg-9 mb-2">
+                @Html.DisplayFor(model => model.Budget)
+            </dd>
+
+            <dt class="col-sm-4 col-lg-3 fw-bold">
+                @Html.DisplayNameFor(model => model.StartDate)
+            </dt>
+            <dd class="col-sm-8 col-lg-9 mb-2">
+                @Html.DisplayFor(model => model.StartDate)
+            </dd>
+
+            <dt class="col-sm-4 col-lg-3 fw-bold">
+                @Html.DisplayNameFor(model => model.Administrator)
+            </dt>
+            <dd class="col-sm-8 col-lg-9 mb-2">
+                @(Model.Administrator?.FullName ?? "N/A")
+            </dd>
+        </dl>
+    </div>
+    <div class="card-footer bg-light text-end">
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="DepartmentID" />
+            <input type="hidden" asp-for="ConcurrencyToken" />
+            <button type="submit" class="btn btn-danger me-2">
+                <i class="fas fa-trash me-1"></i> Confirmar Exclusão
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Voltar à Lista
+            </a>
+        </form>
+    </div>
 </div>

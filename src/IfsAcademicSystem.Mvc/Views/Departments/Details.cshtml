@@ -1,42 +1,50 @@
 ﻿@model IfsAcademicSystem.Mvc.Models.Department
 
 @{
-    ViewData["Title"] = "Detalhes";
+    ViewData["Title"] = "Detalhes do Departamento";
 }
 
-<h1>Detalhes</h1>
+<div class="card shadow-sm mt-4">
+    <div class="card-header ifs-primary-bg-mvc text-white">
+        <h4 class="my-1 ifs-highlight-color-mvc">@ViewData["Title"]: @Model.Name</h4>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3 col-lg-2 fw-bold">
+                @Html.DisplayNameFor(model => model.Name)
+            </dt>
+            <dd class="col-sm-9 col-lg-10 mb-2">
+                @Html.DisplayFor(model => model.Name)
+            </dd>
 
-<div>
-    <h4>Departamento</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Budget)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Budget)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.StartDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.StartDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Administrator)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Administrator.FullName)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.DepartmentID">Editar</a> |
-    <a asp-action="Index">Voltar á lista</a>
+            <dt class="col-sm-3 col-lg-2 fw-bold">
+                @Html.DisplayNameFor(model => model.Budget)
+            </dt>
+            <dd class="col-sm-9 col-lg-10 mb-2">
+                @Html.DisplayFor(model => model.Budget)
+            </dd>
+
+            <dt class="col-sm-3 col-lg-2 fw-bold">
+                @Html.DisplayNameFor(model => model.StartDate)
+            </dt>
+            <dd class="col-sm-9 col-lg-10 mb-2">
+                @Html.DisplayFor(model => model.StartDate)
+            </dd>
+
+            <dt class="col-sm-3 col-lg-2 fw-bold">
+                @Html.DisplayNameFor(model => model.Administrator)
+            </dt>
+            <dd class="col-sm-9 col-lg-10 mb-2">
+                @(Model.Administrator?.FullName ?? "N/A")
+            </dd>
+        </dl>
+    </div>
+    <div class="card-footer bg-light text-end">
+        <a asp-action="Edit" asp-route-id="@Model?.DepartmentID" class="btn ifs-btn-primary-mvc me-2">
+            <i class="fas fa-edit me-1"></i> Editar
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Voltar à Lista
+        </a>
+    </div>
 </div>

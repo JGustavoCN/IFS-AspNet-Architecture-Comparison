@@ -1,50 +1,57 @@
 ﻿@model IfsAcademicSystem.Mvc.Models.Course
 
 @{
-    ViewData["Title"] = "Editar";
+    ViewData["Title"] = "Editar Curso";
 }
 
-<h1>Editar</h1>
-
-<h4>Curso</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="card shadow-sm mt-4 col-md-8 col-lg-6 mx-auto">
+    <div class="card-header ifs-primary-bg-mvc text-white">
+        <h4 class="my-1 ifs-text-highlight-on-primary-mvc">@ViewData["Title"]: @Model.Title</h4>
+    </div>
+    <div class="card-body">
         <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
             <input type="hidden" asp-for="CourseID" />
-            <div class="form-group">
-                <label asp-for="CourseID" class="control-label"></label>
-                <div>@Html.DisplayFor(model => model.CourseID)</div>
+
+            <div class="form-group mb-3">
+                <label asp-for="CourseID" class="control-label fw-bold"></label>
+                <p class="form-control-plaintext">@Html.DisplayFor(model => model.CourseID)</p>
             </div>
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
+
+            <div class="form-group mb-3">
+                <label asp-for="Title" class="control-label fw-bold"></label>
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Credits" class="control-label"></label>
+
+            <div class="form-group mb-3">
+                <label asp-for="Credits" class="control-label fw-bold"></label>
                 <input asp-for="Credits" class="form-control" />
                 <span asp-validation-for="Credits" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Department" class="control-label"></label>
-                <select asp-for="DepartmentID" class="form-control" asp-items="ViewBag.DepartmentID">
+
+            <div class="form-group mb-3">
+                <label asp-for="DepartmentID" class="control-label fw-bold"></label>
+                <select asp-for="DepartmentID" class="form-select" asp-items="ViewBag.DepartmentID">
                     <option value="">-- Selecionar Departamento --</option>
                 </select>
-                <span asp-validation-for="DepartmentID" class="text-danger" />
+                <span asp-validation-for="DepartmentID" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Salvar" class="btn btn-primary" />
+
+            <div class="card-footer bg-light text-end mt-4">
+                <button type="submit" class="btn ifs-btn-primary-mvc me-2">
+                    <i class="fas fa-save me-1"></i> Salvar
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Voltar à Lista
+                </a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Voltar á lista</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

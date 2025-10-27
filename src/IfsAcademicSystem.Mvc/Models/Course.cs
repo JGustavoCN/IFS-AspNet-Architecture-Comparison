@@ -27,8 +27,11 @@ namespace IfsAcademicSystem.Mvc.Models
         public int DepartmentID { get; set; }
 
         // Propriedades de navegação
+        [Display(Name = "Departamento")]
         public Department Department { get; set; }
+        [Display(Name = "Matriculas")]
         public ICollection<Enrollment> Enrollments { get; set; }
+        [Display(Name = "Instrutores")]
         public ICollection<Instructor> Instructors { get; set; }
     }
 }

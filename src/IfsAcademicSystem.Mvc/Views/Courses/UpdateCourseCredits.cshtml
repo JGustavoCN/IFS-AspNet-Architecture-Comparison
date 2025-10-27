@@ -1,28 +1,40 @@
 ﻿@{
-    ViewBag.Title = "UpdateCourseCredits";
+    ViewData["Title"] = "Atualizar Créditos dos Cursos";
 }
 
-<h2>Update Course Credits</h2>
+<div class="card shadow-sm mt-4 col-md-8 col-lg-6 mx-auto">
+    <div class="card-header ifs-primary-bg-mvc text-white">
+        <h4 class="my-1 ifs-text-highlight-on-primary-mvc">@ViewData["Title"]</h4>
+    </div>
+    <div class="card-body">
 
-@if (ViewData["RowsAffected"] == null)
-{
-    <form asp-action="UpdateCourseCredits">
-        <div class="form-actions no-color">
-            <p>
-                Enter a number to multiply every course's credits by: @Html.TextBox("multiplier")
-            </p>
-            <p>
-                <input type="submit" value="Update" class="btn btn-default" />
-            </p>
-        </div>
-    </form>
-}
-@if (ViewData["RowsAffected"] != null)
-{
-    <p>
-        Number of rows updated: @ViewData["RowsAffected"]
-    </p>
-}
-<div>
-    @Html.ActionLink("Back to List", "Index")
+        @if (ViewData["RowsAffected"] == null)
+        {
+            <form asp-action="UpdateCourseCredits" method="post">
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle me-2"></i> Insira um número para multiplicar os créditos de <strong>todos</strong> os cursos.
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Multiplicar por:</span>
+                    <input type="number" name="multiplier" class="form-control" placeholder="Ex: 2" aria-label="Fator de multiplicação" required>
+                    <button type="submit" class="btn ifs-btn-primary-mvc">
+                        <i class="fas fa-sync-alt me-1"></i> Atualizar Créditos
+                    </button>
+                </div>
+            </form>
+        }
+
+        @if (ViewData["RowsAffected"] != null)
+        {
+            <div class="alert alert-success" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                Número de cursos atualizados: <strong>@ViewData["RowsAffected"]</strong>
+            </div>
+        }
+    </div>
+    <div class="card-footer bg-light text-end">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Voltar à Lista de Cursos
+        </a>
+    </div>
 </div>

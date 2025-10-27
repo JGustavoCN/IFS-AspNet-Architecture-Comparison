@@ -1,22 +1,215 @@
+/* Configurações Globais e Fontes */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 100px; /* Altura do footer */
+    font-family: 'Lato', sans-serif; /* Fonte base */
+    color: #333;
+    background-color: #CCD9E2; /* Fundo geral MVC */
+}
+
+/* Títulos com a fonte Merriweather */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Merriweather', serif;
+    color: #6F4849; /* Cor marrom avermelhado para títulos */
+}
+
+/* Ajuste sutil na sombra (pode ser aplicada onde necessário) */
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+/* Navbar Customizada - MVC */
+.ifs-navbar-mvc {
+    background-color: #285185 !important; /* Cor primária MVC */
+}
+
+    .ifs-navbar-mvc .navbar-brand {
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+        .ifs-navbar-mvc .navbar-brand:hover {
+            color: #e2e6ea;
+        }
+
+    .ifs-navbar-mvc .nav-link {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+        .ifs-navbar-mvc .nav-link:hover {
+            color: #ffffff;
+        }
+
+    .ifs-navbar-mvc .nav-item .nav-link.active {
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+/* Footer Customizado - MVC */
+.ifs-footer-mvc {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+    background-color: #6F4849; /* Cor marrom avermelhado escura */
+}
+
+    .ifs-footer-mvc a {
+        text-decoration: none;
+    }
+
+        .ifs-footer-mvc a:hover {
+            text-decoration: underline;
+        }
+
+/* Classes de Cores Específicas - MVC */
+.ifs-primary-bg-mvc {
+    background-color: #285185 !important;
+}
+
+.ifs-highlight-color-mvc {
+    color: #D67940 !important;
+}
+
+/* Cor de Destaque para Texto sobre Fundo Primário - MVC */
+.ifs-text-highlight-on-primary-mvc {
+    color: #D67940 !important;
+}
+
+/* Botões Customizados - MVC */
+.ifs-btn-outline-primary-mvc {
+    color: #285185;
+    border-color: #285185;
+}
+
+    .ifs-btn-outline-primary-mvc:hover {
+        color: #fff;
+        background-color: #285185;
+        border-color: #285185;
+    }
+
+.ifs-btn-primary-mvc {
+    color: #fff;
+    background-color: #285185;
+    border-color: #285185;
+}
+
+    .ifs-btn-primary-mvc:hover {
+        color: #fff;
+        background-color: #22436d; /* Um pouco mais escuro no hover */
+        border-color: #1e3a5f;
+    }
+
+/* Melhorias Visuais nos Cards e Blocos (Padrões) */
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important;
+}
+
+.rounded-3 {
+    border-radius: .3rem !important;
+}
+
+/* Tabela - Cabeçalho e Ações */
+.table thead th {
+    vertical-align: middle;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Ícones de ordenação na tabela */
+.table thead th a i {
+    font-size: 0.8em;
+    margin-left: 0.25rem;
+}
+
+/* Para garantir que o botão desabilitado fique claro */
+.btn.disabled, .btn:disabled {
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+/* Responsividade da Tabela */
+.table-responsive {
+    margin-bottom: 1rem;
+}
+
+/* Estilos específicos para os Cards da Equipe (Home) */
+/* Se esses estilos só são usados na Home, idealmente iriam para Views/Home/Index.cshtml.css */
+/* Mas como já estavam aqui, mantenho por enquanto para organização */
+.team-card {
+    border: none;
+    border-bottom: 5px solid #285185; /* Borda inferior colorida */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    margin-top: 10px;
+}
+
+    .team-card:hover {
+        transform: translateY(-5px); /* Efeito de "subir" no hover */
+        box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important; /* Sombra mais pronunciada no hover */
+    }
+
+    .team-card .card-body {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+
+    .team-card .card-title {
+        color: #285185; /* Título do card com a cor primária MVC */
+        margin-bottom: 0.5rem;
+    }
+
+    .team-card .card-text.text-muted {
+        font-size: 0.9rem; /* Matrícula um pouco menor */
+    }
+
+    /* Ícones dentro dos botões do card da equipe */
+    .team-card .btn i {
+        font-size: 1.2rem;
+        vertical-align: middle;
+    }
+
+    /* Ajuste botão GitHub no card da equipe */
+    .team-card .btn-outline-dark {
+        color: #6F4849;
+        border-color: #6F4849;
+    }
+
+        .team-card .btn-outline-dark:hover {
+            color: #fff;
+            background-color: #6F4849;
+            border-color: #6F4849;
+        }
+
+/* Melhora contraste na linha selecionada */
+.table-primary.ifs-selected-row,
+.table-primary.ifs-selected-row > th,
+.table-primary.ifs-selected-row > td {
+    color: #000; /* Força texto preto na linha azul claro */
+    /* Você pode ajustar a cor de fundo se o azul padrão for muito forte */
+    /* background-color: #cfe2ff; */
+}
+
+/* Espaçamento e estilo para badges de curso */
+.table td .badge {
+    font-weight: normal;
+    padding: 0.3em 0.5em;
+}
+
+/* Garante que os botões de ação não quebrem linha facilmente */
+.action-buttons {
+    white-space: nowrap;
 }
