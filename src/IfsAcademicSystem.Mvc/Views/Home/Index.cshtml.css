@@ -1,0 +1,57 @@
+﻿/* Estilos específicos para os Cards da Equipe (Home/Index) */
+.team-card {
+    border: none;
+    border-bottom: 5px solid #285185; /* Borda inferior colorida (cor primária MVC) */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    margin-top: 10px;
+}
+
+    .team-card:hover {
+        transform: translateY(-5px); /* Efeito de "subir" no hover */
+        box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important; /* Sombra mais pronunciada no hover */
+    }
+
+    .team-card .card-body {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+
+    .team-card .card-title {
+        color: #285185; /* Título do card com a cor primária MVC */
+        margin-bottom: 0.5rem;
+    }
+
+    .team-card .card-text.text-muted {
+        font-size: 0.9rem; /* Matrícula um pouco menor */
+    }
+
+/* Foto de Perfil */
+.team-photo {
+    object-fit: cover; /* Evita distorção da imagem */
+    border: 3px solid #dee2e6; /* Borda cinza claro, opcional */
+}
+
+/* Descrição */
+.team-description {
+    min-height: 60px; /* Ajuste a altura mínima conforme necessário para alinhar */
+    font-style: italic;
+    color: #555;
+}
+
+/* Ícones dentro dos botões do card da equipe */
+.team-card .btn i {
+    font-size: 1.2rem;
+    vertical-align: middle;
+}
+
+/* Ajuste botão GitHub no card da equipe */
+.team-card .btn-outline-dark {
+    color: #6F4849; /* Cor do texto/ícone GitHub (cor do footer MVC) */
+    border-color: #6F4849;
+}
+
+    .team-card .btn-outline-dark:hover {
+        color: #fff;
+        background-color: #6F4849;
+        border-color: #6F4849;
+    }

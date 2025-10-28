@@ -4,37 +4,52 @@
     ViewData["Title"] = "Estatísticas do Corpo Discente";
 }
 
-<div class="container mt-5">
+<div class="container mt-4">
 
     <h2 class="text-center mb-4">@ViewData["Title"]</h2>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <table class="table table-striped table-hover table-bordered">
-                <thead class="thead-dark">
-                    <tr class="text-center">
-                        <th>
-                            @Html.DisplayNameFor(model => model.Students.FirstOrDefault().EnrollmentDate)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.Students.FirstOrDefault().StudentCount)
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.Students)
-                    {
+    <div class="card shadow-sm mb-4">
+        <div class="card-header ifs-primary-bg-rp text-white">
+            <h5 class="my-1 text-white">Matrículas por Data</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered mb-0">
+                    <thead class="thead-light">
                         <tr class="text-center">
-                            <td>
-                                @Html.DisplayFor(modelItem => item.EnrollmentDate)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.StudentCount)
-                            </td>
+                            <th>
+                                Data da Matrícula
+                            </th>
+                            <th>
+                                Número de Estudantes
+                            </th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @* Assume que a propriedade no PageModel se chama StudentStats *@
+                        @if (Model.Students != null && Model.Students.Any())
+                        {
+                            @foreach (var item in Model.Students)
+                            {
+                                <tr class="text-center">
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.EnrollmentDate)
+                                    </td>
+                                    <td>
+                                        @item.StudentCount
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="2" class="text-center text-muted py-3">Não há dados de matrícula para exibir.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

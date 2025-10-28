@@ -5,122 +5,162 @@
     ViewData["Title"] = "Instrutores";
 }
 
-<h2>Instrutores</h2>
-
-<p>
-    <a asp-page="Create">Criar Novo</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.InstructorData.Instructors.FirstOrDefault().LastName)</th>
-            <th>@Html.DisplayNameFor(model => model.InstructorData.Instructors.FirstOrDefault().FirstMidName)</th>
-            <th>@Html.DisplayNameFor(model => model.InstructorData.Instructors.FirstOrDefault().HireDate)</th>
-            <th>Escritório</th>
-            <th>Cursos</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.InstructorData.Instructors)
-        {
-            string selectedRow = "";
-            if (item.ID == Model.InstructorID)
-            {
-                selectedRow = "table-success";
-            }
-            <tr class="@selectedRow">
-                <td>
-                    @Html.DisplayFor(modelItem => item.LastName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FirstMidName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.HireDate)
-                </td>
-                <td>
-                    @if (item.OfficeAssignment != null)
+<div class="card shadow-sm mt-4">
+    <div class="card-header ifs-primary-bg-rp text-white d-flex justify-content-between align-items-center">
+        <h4 class="my-1 text-white">@ViewData["Title"]</h4>
+        <a asp-page="Create" class="btn btn-sm btn-light ifs-highlight-color-rp">
+            <i class="fas fa-plus-circle me-1"></i> Criar Novo
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered align-middle">
+                <thead class="thead-light">
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.InstructorData.Instructors.FirstOrDefault().LastName)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.InstructorData.Instructors.FirstOrDefault().FirstMidName)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.InstructorData.Instructors.FirstOrDefault().HireDate)
+                        </th>
+                        <th>Escritório</th>
+                        <th>Cursos</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.InstructorData.Instructors)
                     {
-                        @item.OfficeAssignment.Location
+                        string selectedRow = (item.ID == Model.InstructorID) ? "table-primary ifs-selected-row" : "";
+                        <tr class="@selectedRow">
+                            <td>
+                                @Html.DisplayFor(modelItem => item.LastName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FirstMidName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.HireDate)
+                            </td>
+                            <td>
+                                @if (item.OfficeAssignment != null)
+                                {
+                                    @Html.DisplayFor(modelItem => item.OfficeAssignment.Location)
+                                }
+                            </td>
+                            <td>
+                                @foreach (var course in item.Courses)
+                                {
+                                    @course.CourseID @:&nbsp; @course.Title <br />
+                                }
+                            </td>
+                            <td class="text-center action-buttons">
+                                <a asp-page="./Index" asp-route-id="@item.ID" class="btn btn-sm ifs-btn-outline-primary-rp me-1" title="Selecionar">
+                                    <i class="fas fa-check-circle"></i>
+                                </a>
+                                <a asp-page="./Edit" asp-route-id="@item.ID" class="btn btn-sm ifs-btn-outline-primary-rp me-1" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-page="./Details" asp-route-id="@item.ID" class="btn btn-sm btn-outline-secondary me-1" title="Detalhes">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                                <a asp-page="./Delete" asp-route-id="@item.ID" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
                     }
-                </td>
-                <td>
-                    @{
-                        foreach (var course in item.Courses)
-                        {
-                            @course.CourseID @:&nbsp; @course.Title <br />
-                        }
-                    }
-                </td>
-                <td>
-                    <a asp-page="./Index" asp-route-id="@item.ID">Selecionar</a> |
-                    <a asp-page="./Edit" asp-route-id="@item.ID">Editar</a> |
-                    <a asp-page="./Details" asp-route-id="@item.ID">Detalhes</a> |
-                    <a asp-page="./Delete" asp-route-id="@item.ID">Excluir</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-@if (Model.InstructorData.Courses != null)
-{
-    <h3>Cursos Ministrados pelo Instrutor Selecionado</h3>
-    <table class="table">
-        <tr>
-            <th></th>
-            <th>Código</th>
-            <th>Título</th>
-            <th>Departamento</th>
-        </tr>
+<div class="row mt-3">
+    @if (Model.InstructorData.Courses != null)
+    {
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header ifs-primary-bg-rp text-white">
+                    <h5 class="my-1 text-white">Cursos Ministrados</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover table-bordered table-sm align-middle">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Título</th>
+                                    <th>Departamento</th>
+                                    <th class="text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.InstructorData.Courses)
+                                {
+                                    string selectedRow = (item.CourseID == Model.CourseID) ? "table-primary ifs-selected-row" : "";
+                                    <tr class="@selectedRow">
+                                        <td>
+                                            @item.CourseID
+                                        </td>
+                                        <td>
+                                            @item.Title
+                                        </td>
+                                        <td>
+                                            @item.Department.Name
+                                        </td>
+                                        <td class="text-center">
+                                            <a asp-page="./Index" asp-route-id="@Model.InstructorID" asp-route-courseID="@item.CourseID" 
+                                               class="btn btn-sm ifs-btn-outline-secondary-rp" title="Ver Matrículas">
+                                                <i class="fas fa-users"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 
-        @foreach (var item in Model.InstructorData.Courses)
-        {
-            string selectedRow = "";
-            if (item.CourseID == Model.CourseID)
-            {
-                selectedRow = "table-success";
-            }
-            <tr class="@selectedRow">
-                <td>
-                    <a asp-page="./Index" asp-route-courseID="@item.CourseID">Selecionar</a>
-                </td>
-                <td>
-                    @item.CourseID
-                </td>
-                <td>
-                    @item.Title
-                </td>
-                <td>
-                    @item.Department.Name
-                </td>
-            </tr>
-        }
-
-    </table>
-}
-
-@if (Model.InstructorData.Enrollments != null)
-{
-    <h3>
-        Alunos Matriculados no Curso Selecionado
-    </h3>
-    <table class="table">
-        <tr>
-            <th>Nome</th>
-            <th>Nota</th>
-        </tr>
-        @foreach (var item in Model.InstructorData.Enrollments)
-        {
-            <tr>
-                <td>
-                    @item.Student.FullName
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Grade)
-                </td>
-            </tr>
-        }
-    </table>
-}
+    @if (Model.InstructorData.Enrollments != null)
+    {
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header ifs-primary-bg-rp text-white">
+                    <h5 class="my-1 text-white">Matrículas no Curso Selecionado</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover table-bordered table-sm align-middle">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Estudante</th>
+                                    <th class="text-center">Nota</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.InstructorData.Enrollments)
+                                {
+                                    <tr>
+                                        <td>
+                                            @item.Student.FullName
+                                        </td>
+                                        <td class="text-center">
+                                            @Html.DisplayFor(modelItem => item.Grade)
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -5,82 +5,123 @@
     ViewData["Title"] = "Estudantes";
 }
 
-<h1>Estudantes</h1>
-
-<p>
-    <a asp-page="Create">Criar Novo</a>
-</p>
-
-<form asp-page="./Index" method="get">
-    <div class="form-actions no-color">
-        <p>
-            Find by name:
-            <input type="text" name="SearchString" value="@Model.CurrentFilter" />
-            <input type="submit" value="Search" class="btn btn-primary" /> |
-            <a asp-page="./Index">Back to full List</a>
-        </p>
+<div class="card shadow-sm mt-4">
+    <div class="card-header ifs-primary-bg-rp text-white d-flex justify-content-between align-items-center">
+        <h4 class="my-1 text-white">@ViewData["Title"]</h4>
+        <a asp-page="Create" class="btn btn-sm btn-light ifs-highlight-color-rp">
+            <i class="fas fa-plus-circle me-1 ifs"></i> Criar Novo Estudante
+        </a>
     </div>
-</form>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                <a asp-page="./Index" asp-route-sortOrder="@Model.NameSort"
-                   asp-route-currentFilter="@Model.CurrentFilter">
-                    @Html.DisplayNameFor(model => model.Students[0].LastName)
+    <div class="card-body">
+        <form asp-page="./Index" method="get" class="mb-3">
+            <div class="input-group">
+                <input type="text" name="SearchString" value="@Model.CurrentFilter" class="form-control" placeholder="Procurar por nome ou sobrenome..." aria-label="Filtro de estudante">
+                <button type="submit" class="btn ifs-btn-primary-rp">
+                    <i class="fas fa-search me-1"></i> Procurar
+                </button>
+                <a asp-page="./Index" class="btn btn-outline-secondary">
+                    Limpar
                 </a>
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Students[0].FirstMidName)
-            </th>
-            <th>
-                <a asp-page="./Index" asp-route-sortOrder="@Model.DateSort"
-                   asp-route-currentFilter="@Model.CurrentFilter">
-                    @Html.DisplayNameFor(model => model.Students[0].EnrollmentDate)
-                </a>
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Students) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FirstMidName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EnrollmentDate)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.ID">Editar</a> |
-                <a asp-page="./Details" asp-route-id="@item.ID">Detalhes</a> |
-                <a asp-page="./Delete" asp-route-id="@item.ID">Deletar</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+            </div>
+        </form>
 
-@{
-    var prevDisabled = !Model.Students.HasPreviousPage ? "disabled" : "";
-    var nextDisabled = !Model.Students.HasNextPage ? "disabled" : "";
-}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered align-middle">
+                <thead class="thead-light">
+                    <tr>
+                        <th>
+                            <a asp-page="./Index" asp-route-sortOrder="@Model.NameSort"
+                               asp-route-currentFilter="@Model.CurrentFilter" class="text-decoration-none text-dark fw-bold">
+                                @Html.DisplayNameFor(model => model.Students[0].LastName)
+                                @if (Model.CurrentSort == "LastName")
+                                {
+                                    <i class="fas fa-sort-up"></i>
+                                }
+                                @if (Model.CurrentSort == "LastName_desc")
+                                {
+                                    <i class="fas fa-sort-down"></i>
+                                }
+                            </a>
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Students[0].FirstMidName)
+                        </th>
+                        <th>
+                            <a asp-page="./Index" asp-route-sortOrder="@Model.DateSort"
+                               asp-route-currentFilter="@Model.CurrentFilter" class="text-decoration-none text-dark fw-bold">
+                                @Html.DisplayNameFor(model => model.Students[0].EnrollmentDate)
+                                @if (Model.CurrentSort == "EnrollmentDate")
+                                {
+                                    <i class="fas fa-sort-up"></i>
+                                }
+                                @if (Model.CurrentSort == "EnrollmentDate_desc")
+                                {
+                                    <i class="fas fa-sort-down"></i>
+                                }
+                            </a>
+                        </th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Students)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.LastName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FirstMidName)
+                            </td>
+                            <td class="text-center">
+                                @Html.DisplayFor(modelItem => item.EnrollmentDate)
+                            </td>
+                            <td class="text-center action-buttons">
+                                <a asp-page="./Edit" asp-route-id="@item.ID" class="btn btn-sm ifs-btn-outline-primary-rp me-1" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-page="./Details" asp-route-id="@item.ID" class="btn btn-sm btn-outline-secondary me-1" title="Detalhes">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                                <a asp-page="./Delete" asp-route-id="@item.ID" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-light">
+        @{
+            var prevDisabled = !Model.Students.HasPreviousPage ? "disabled" : "";
+            var nextDisabled = !Model.Students.HasNextPage ? "disabled" : "";
+        }
 
-<a asp-page="./Index"
-   asp-route-sortOrder="@Model.CurrentSort"
-   asp-route-pageIndex="@(Model.Students.PageIndex - 1)"
-   asp-route-currentFilter="@Model.CurrentFilter"
-   class="btn btn-primary @prevDisabled">
-    Previous
-</a>
-<a asp-page="./Index"
-   asp-route-sortOrder="@Model.CurrentSort"
-   asp-route-pageIndex="@(Model.Students.PageIndex + 1)"
-   asp-route-currentFilter="@Model.CurrentFilter"
-   class="btn btn-primary @nextDisabled">
-    Next
-</a>
+        <nav aria-label="Paginação de estudantes">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    Página @Model.Students.PageIndex de @Model.Students.TotalPages
+                </small>
+
+                <div>
+                    <a asp-page="./Index"
+                       asp-route-sortOrder="@Model.CurrentSort"
+                       asp-route-pageIndex="@(Model.Students.PageIndex - 1)"
+                       asp-route-currentFilter="@Model.CurrentFilter"
+                       class="btn btn-sm ifs-btn-outline-primary-rp @prevDisabled">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </a>
+                    <a asp-page="./Index"
+                       asp-route-sortOrder="@Model.CurrentSort"
+                       asp-route-pageIndex="@(Model.Students.PageIndex + 1)"
+                       asp-route-currentFilter="@Model.CurrentFilter"
+                       class="btn btn-sm ifs-btn-outline-primary-rp @nextDisabled">
+                        Próximo <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>

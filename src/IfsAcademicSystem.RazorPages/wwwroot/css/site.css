@@ -1,22 +1,203 @@
+/* Configurações Globais e Fontes */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 100px; /* Altura do footer */
+    font-family: 'Lato', sans-serif; /* Fonte base */
+    color: #333;
+    background-color: #eafde6; /* Fundo geral RP (Verde muito claro) */
+}
+
+/* Títulos com a fonte Merriweather */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Merriweather', serif;
+    color: #519548; /* Cor primária RP (Verde escuro) para títulos */
+}
+
+/* Ajuste do foco padrão Bootstrap (mantido do site.css original do RP) */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb; /* Cor padrão Bootstrap, pode ajustar para #88c425 se preferir */
+}
+
+
+/* Ajuste sutil na sombra (pode ser aplicada onde necessário) */
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+/* Navbar Customizada - Razor Pages */
+.ifs-navbar-rp {
+    background-color: #519548 !important; /* Cor primária RP */
+}
+
+    .ifs-navbar-rp .navbar-brand {
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+        .ifs-navbar-rp .navbar-brand:hover {
+            color: #eafde6; /* Verde muito claro no hover */
+        }
+
+    .ifs-navbar-rp .nav-link {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+        .ifs-navbar-rp .nav-link:hover {
+            color: #ffffff;
+        }
+
+    .ifs-navbar-rp .nav-item .nav-link.active {
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+/* Footer Customizado - Razor Pages */
+.ifs-footer-rp {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+    background-color: #519548; /* Cor primária RP escura */
+    color: rgba(255, 255, 255, 0.8); /* Texto claro */
+}
+
+    .ifs-footer-rp a {
+        color: #ffffff; /* Link branco */
+        text-decoration: none;
+    }
+
+        .ifs-footer-rp a:hover {
+            text-decoration: underline;
+        }
+
+.ifs-primary-bg-rp {
+    background-color: #519548 !important;
+    color: #ffffff !important; /* Define texto branco por padrão neste fundo */
+}
+    /* Links dentro do fundo primário */
+    .ifs-primary-bg-rp a {
+        color: #ffffff;
+    }
+
+        .ifs-primary-bg-rp a:hover {
+            color: #eafde6; /* Verde muito claro no hover */
+        }
+
+.ifs-highlight-color-rp { /* Cor secundária verde claro */
+    color: #88c425 !important;
+}
+
+/* Texto branco sobre fundo primário (padrão, mas explícito) */
+.ifs-text-on-primary-rp {
+    color: #ffffff !important;
+}
+
+/* Botões Customizados - Razor Pages */
+.ifs-btn-outline-primary-rp {
+    color: #519548;
+    border-color: #519548;
+}
+
+    .ifs-btn-outline-primary-rp:hover {
+        color: #fff;
+        background-color: #519548;
+        border-color: #519548;
+    }
+
+.ifs-btn-primary-rp {
+    color: #fff;
+    background-color: #519548;
+    border-color: #519548;
+}
+
+    .ifs-btn-primary-rp:hover {
+        color: #fff;
+        background-color: #417a3a; /* Verde um pouco mais escuro no hover */
+        border-color: #376631;
+    }
+
+/* Botão Sólido de Destaque - Razor Pages (usando verde claro) */
+.ifs-btn-highlight-rp {
+    color: #333; /* Texto escuro para contraste */
+    background-color: #88c425; /* Verde claro */
+    border-color: #88c425;
+}
+
+    .ifs-btn-highlight-rp:hover {
+        color: #fff; /* Muda para branco no hover */
+        background-color: #72a81e; /* Verde claro mais escuro no hover */
+        border-color: #639219;
+    }
+
+
+/* Melhorias Visuais nos Cards e Blocos (Padrões) */
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important;
+}
+
+.rounded-3 {
+    border-radius: .3rem !important;
+}
+
+/* Tabela - Cabeçalho e Ações */
+.table thead th {
+    vertical-align: middle;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Ícones de ordenação na tabela */
+.table thead th a i {
+    font-size: 0.8em;
+    margin-left: 0.25rem;
+}
+
+/* Para garantir que o botão desabilitado fique claro */
+.btn.disabled, .btn:disabled {
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+/* Responsividade da Tabela */
+.table-responsive {
+    margin-bottom: 1rem;
+}
+
+/* Melhora contraste na linha selecionada (usando a cor primária RP) */
+.table-primary.ifs-selected-row,
+.table-primary.ifs-selected-row > th,
+.table-primary.ifs-selected-row > td {
+    background-color: #d1e7dd; /* Cor de fundo Bootstrap para table-success (verde claro) */
+    color: #0a3622; /* Cor de texto Bootstrap para table-success */
+    border-color: #badbcc;
+}
+
+/* Espaçamento e estilo para badges de curso */
+.table td .badge {
+    font-weight: normal;
+    padding: 0.3em 0.5em;
+}
+
+/* Garante que os botões de ação não quebrem linha facilmente */
+.action-buttons {
+    white-space: nowrap;
+}
+
+/* Adiciona borda acima dos botões (Classe global Bootstrap)*/
+.border-top {
+    border-top: 1px solid #dee2e6 !important;
 }

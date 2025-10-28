@@ -1,61 +1,75 @@
 ﻿@page
 @model IfsAcademicSystem.RazorPages.Pages.Departments.IndexModel
+@using IfsAcademicSystem.RazorPages
 
 @{
     ViewData["Title"] = "Departamentos";
 }
 
-<h1>Departamentos</h1>
-
-<p>
-    <a asp-page="Create">Criar novo</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Department[0].Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Department[0].Budget)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Department[0].StartDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Department[0].Administrator)
-			</th>
-			<th>
-				@Html.DisplayNameFor(model => model.Department[0].ConcurrencyToken)
-			</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Department) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Budget)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartDate)
-			</td>
-			<td>
-				@Html.DisplayFor(modelItem => item.Administrator.FullName)
-			</td>
-            <td>
-                @Utility.GetLastChars(item.ConcurrencyToken)
-            </td>
-            
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.DepartmentID">Editar</a> |
-                <a asp-page="./Details" asp-route-id="@item.DepartmentID">Detalhes</a> |
-                <a asp-page="./Delete" asp-route-id="@item.DepartmentID">Excluir</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="card shadow-sm mt-4">
+    <div class="card-header ifs-primary-bg-rp text-white d-flex justify-content-between align-items-center">
+        <h4 class="my-1 text-white">@ViewData["Title"]</h4>
+        <a asp-page="Create" class="btn btn-sm btn-light ifs-highlight-color-rp">
+            <i class="fas fa-plus-circle me-1"></i> Criar Novo
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered align-middle">
+                <thead class="thead-light">
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Department[0].Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Department[0].Budget)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Department[0].StartDate)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Department[0].Administrator)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Department[0].ConcurrencyToken)
+                        </th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Department)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Budget)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.StartDate)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Administrator.FullName)
+                            </td>
+                            <td>
+                                @Utility.GetLastChars(item.ConcurrencyToken)
+                            </td>
+                            <td class="text-center action-buttons">
+                                <a asp-page="./Edit" asp-route-id="@item.DepartmentID" class="btn btn-sm ifs-btn-outline-primary-rp me-1" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-page="./Details" asp-route-id="@item.DepartmentID" class="btn btn-sm btn-outline-secondary me-1" title="Detalhes">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                                <a asp-page="./Delete" asp-route-id="@item.DepartmentID" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

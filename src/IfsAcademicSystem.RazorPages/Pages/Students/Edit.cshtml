@@ -2,46 +2,50 @@
 @model IfsAcademicSystem.RazorPages.Pages.Students.EditModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Estudante";
 }
 
-<h1>Edit</h1>
-
-<h4>Student</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="card shadow-sm mt-4 col-md-8 col-lg-6 mx-auto">
+    <div class="card-header ifs-primary-bg-rp text-white">
+        <h4 class="my-1 text-white">@ViewData["Title"]: @Model.Student.FullName</h4>
+    </div>
+    <div class="card-body">
         <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
             <input type="hidden" asp-for="Student.ID" />
-            <div class="form-group">
-                <span class="text-danger">*</span>
-                <label asp-for="Student.LastName" class="control-label"></label>
+
+            <div class="form-group mb-3">
+                <label asp-for="Student.LastName" class="control-label fw-bold"></label>
                 <input asp-for="Student.LastName" class="form-control" />
                 <span asp-validation-for="Student.LastName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <span class="text-danger">*</span>
-                <label asp-for="Student.FirstMidName" class="control-label"></label>
+
+            <div class="form-group mb-3">
+                <label asp-for="Student.FirstMidName" class="control-label fw-bold"></label>
                 <input asp-for="Student.FirstMidName" class="form-control" />
                 <span asp-validation-for="Student.FirstMidName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Student.EnrollmentDate" class="control-label"></label>
+
+            <div class="form-group mb-3">
+                <label asp-for="Student.EnrollmentDate" class="control-label fw-bold"></label>
                 <input asp-for="Student.EnrollmentDate" class="form-control" />
                 <span asp-validation-for="Student.EnrollmentDate" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <div class="card-footer bg-light text-end mt-4">
+                <button type="submit" class="btn ifs-btn-primary-rp me-2">
+                    <i class="fas fa-save me-1"></i> Salvar
+                </button>
+                <a asp-page="./Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Voltar à Lista
+                </a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-page="./Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

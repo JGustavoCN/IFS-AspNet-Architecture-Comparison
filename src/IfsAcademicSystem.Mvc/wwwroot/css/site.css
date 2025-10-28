@@ -112,6 +112,20 @@ h1, h2, h3, h4, h5, h6 {
         border-color: #1e3a5f;
     }
 
+/* Botão Sólido de Destaque - MVC */
+.ifs-btn-highlight-mvc {
+    color: #fff; /* Texto branco para contraste */
+    background-color: #D67940; /* Laranja de destaque */
+    border-color: #D67940;
+}
+
+    .ifs-btn-highlight-mvc:hover {
+        color: #fff;
+        background-color: #b8642f; /* Laranja mais escuro no hover */
+        border-color: #a05728;
+    }
+
+
 /* Melhorias Visuais nos Cards e Blocos (Padrões) */
 .shadow-sm {
     box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important;
@@ -147,60 +161,11 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 1rem;
 }
 
-/* Estilos específicos para os Cards da Equipe (Home) */
-/* Se esses estilos só são usados na Home, idealmente iriam para Views/Home/Index.cshtml.css */
-/* Mas como já estavam aqui, mantenho por enquanto para organização */
-.team-card {
-    border: none;
-    border-bottom: 5px solid #285185; /* Borda inferior colorida */
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    margin-top: 10px;
-}
-
-    .team-card:hover {
-        transform: translateY(-5px); /* Efeito de "subir" no hover */
-        box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important; /* Sombra mais pronunciada no hover */
-    }
-
-    .team-card .card-body {
-        padding-top: 1.5rem;
-        padding-bottom: 1.5rem;
-    }
-
-    .team-card .card-title {
-        color: #285185; /* Título do card com a cor primária MVC */
-        margin-bottom: 0.5rem;
-    }
-
-    .team-card .card-text.text-muted {
-        font-size: 0.9rem; /* Matrícula um pouco menor */
-    }
-
-    /* Ícones dentro dos botões do card da equipe */
-    .team-card .btn i {
-        font-size: 1.2rem;
-        vertical-align: middle;
-    }
-
-    /* Ajuste botão GitHub no card da equipe */
-    .team-card .btn-outline-dark {
-        color: #6F4849;
-        border-color: #6F4849;
-    }
-
-        .team-card .btn-outline-dark:hover {
-            color: #fff;
-            background-color: #6F4849;
-            border-color: #6F4849;
-        }
-
 /* Melhora contraste na linha selecionada */
 .table-primary.ifs-selected-row,
 .table-primary.ifs-selected-row > th,
 .table-primary.ifs-selected-row > td {
     color: #000; /* Força texto preto na linha azul claro */
-    /* Você pode ajustar a cor de fundo se o azul padrão for muito forte */
-    /* background-color: #cfe2ff; */
 }
 
 /* Espaçamento e estilo para badges de curso */
@@ -212,4 +177,9 @@ h1, h2, h3, h4, h5, h6 {
 /* Garante que os botões de ação não quebrem linha facilmente */
 .action-buttons {
     white-space: nowrap;
+}
+
+/* Adiciona borda acima dos botões (Classe global Bootstrap)*/
+.border-top {
+    border-top: 1px solid #dee2e6 !important;
 }

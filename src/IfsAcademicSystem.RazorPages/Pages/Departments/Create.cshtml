@@ -2,50 +2,57 @@
 @model IfsAcademicSystem.RazorPages.Pages.Departments.CreateModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Novo Departamento";
 }
 
-<h1>Create</h1>
-
-<h4>Department</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="card shadow-sm mt-4 col-md-8 col-lg-6 mx-auto">
+    <div class="card-header ifs-primary-bg-rp text-white">
+        <h4 class="my-1 text-white">@ViewData["Title"]</h4>
+    </div>
+    <div class="card-body">
         <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <span class="text-danger">*</span>
-                <label asp-for="Department.Name" class="control-label"></label>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Department.Name" class="control-label fw-bold"></label>
                 <input asp-for="Department.Name" class="form-control" />
                 <span asp-validation-for="Department.Name" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <span class="text-danger">*</span>
-                <label asp-for="Department.Budget" class="control-label"></label>
+
+            <div class="form-group mb-3">
+                <label asp-for="Department.Budget" class="control-label fw-bold"></label>
                 <input asp-for="Department.Budget" class="form-control" />
                 <span asp-validation-for="Department.Budget" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <span class="text-danger">*</span>
-                <label asp-for="Department.StartDate" class="control-label"></label>
+
+            <div class="form-group mb-3">
+                <label asp-for="Department.StartDate" class="control-label fw-bold"></label>
                 <input asp-for="Department.StartDate" class="form-control" />
                 <span asp-validation-for="Department.StartDate" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Department.InstructorID" class="control-label"></label>
-                <select asp-for="Department.InstructorID" class ="form-control" asp-items="ViewBag.InstructorID"></select>
+
+            <div class="form-group mb-3">
+                <label asp-for="Department.InstructorID" class="control-label fw-bold"></label>
+                <select asp-for="Department.InstructorID" class="form-control" asp-items="ViewBag.InstructorID">
+                    <option value="">-- Selecione o Administrador --</option>
+                </select>
+                <span asp-validation-for="Department.InstructorID" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+            <div class="card-footer bg-light text-end mt-4">
+                <button type="submit" class="btn ifs-btn-primary-rp me-2">
+                    <i class="fas fa-save me-1"></i> Criar
+                </button>
+                <a asp-page="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Voltar à Lista
+                </a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-page="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
