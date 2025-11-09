@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using IfsAcademicSystem.Mvc.Data;
-using IfsAcademicSystem.Mvc.Models;
+using IfsAcademicSystem.Data.Data;
+using IfsAcademicSystem.Data.Models;
+using IfsAcademicSystem.Data;
 
 namespace IfsAcademicSystem.Mvc.Controllers
 {

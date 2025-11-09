@@ -1,6 +1,6 @@
-﻿using IfsAcademicSystem.RazorPages.Data;
-using IfsAcademicSystem.RazorPages.Models;
-using IfsAcademicSystem.RazorPages.Models.SchoolViewModels;
+﻿using IfsAcademicSystem.Data.Data;
+using IfsAcademicSystem.Data.Models;
+using IfsAcademicSystem.Data.Models.SchoolViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -13,9 +13,9 @@ namespace IfsAcademicSystem.RazorPages.Pages.Courses
 {
     public class IndexModel : PageModel
     {
-        private readonly IfsAcademicSystem.RazorPages.Data.SchoolContext _context;
+        private readonly SchoolContext _context;
 
-        public IndexModel(IfsAcademicSystem.RazorPages.Data.SchoolContext context)
+        public IndexModel(SchoolContext context)
         {
             _context = context;
         }

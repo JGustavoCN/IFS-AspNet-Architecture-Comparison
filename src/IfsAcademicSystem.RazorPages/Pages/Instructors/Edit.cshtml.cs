@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using IfsAcademicSystem.RazorPages.Data;
-using IfsAcademicSystem.RazorPages.Models;
+using IfsAcademicSystem.Data.Data;
+using IfsAcademicSystem.Data.Models;
 
 namespace IfsAcademicSystem.RazorPages.Pages.Instructors
 {

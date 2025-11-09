@@ -1,4 +1,4 @@
-namespace IfsAcademicSystem.Mvc.Models
+﻿namespace IfsAcademicSystem.Data.Models
 {
     public class ErrorViewModel
     {

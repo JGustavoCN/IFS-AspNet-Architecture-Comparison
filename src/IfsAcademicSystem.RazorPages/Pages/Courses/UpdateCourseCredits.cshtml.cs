@@ -1,3 +1,4 @@
+using IfsAcademicSystem.Data.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -7,9 +8,9 @@ namespace IfsAcademicSystem.RazorPages.Pages.Courses
     public class UpdateCourseCreditsModel : PageModel
     {
 
-        private readonly IfsAcademicSystem.RazorPages.Data.SchoolContext _context;
+        private readonly SchoolContext _context;
 
-        public UpdateCourseCreditsModel(IfsAcademicSystem.RazorPages.Data.SchoolContext context)
+        public UpdateCourseCreditsModel(SchoolContext context)
         {
             _context = context;
         }

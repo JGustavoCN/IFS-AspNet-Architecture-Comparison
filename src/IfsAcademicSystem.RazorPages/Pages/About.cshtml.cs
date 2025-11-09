@@ -1,5 +1,5 @@
-using IfsAcademicSystem.RazorPages.Data;
-using IfsAcademicSystem.RazorPages.Models.SchoolViewModels;
+using IfsAcademicSystem.Data.Data;
+using IfsAcademicSystem.Data.Models.SchoolViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;

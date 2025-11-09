@@ -1,4 +1,4 @@
-﻿using IfsAcademicSystem.RazorPages.Models;
+﻿using IfsAcademicSystem.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace IfsAcademicSystem.Data.Data

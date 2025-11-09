@@ -1,6 +1,6 @@
-using IfsAcademicSystem.Mvc.Data;
-using IfsAcademicSystem.Mvc.Models;
-using IfsAcademicSystem.Mvc.Models.SchoolViewModels;
+using IfsAcademicSystem.Data.Data;
+using IfsAcademicSystem.Data.Models;
+using IfsAcademicSystem.Data.Models.SchoolViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

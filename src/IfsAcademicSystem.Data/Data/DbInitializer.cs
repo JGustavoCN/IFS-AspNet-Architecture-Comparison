@@ -1,4 +1,4 @@
-﻿using IfsAcademicSystem.RazorPages.Models;
+﻿using IfsAcademicSystem.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

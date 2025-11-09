@@ -1,5 +1,5 @@
-﻿using IfsAcademicSystem.RazorPages.Data;
-using IfsAcademicSystem.RazorPages.Models;
+﻿using IfsAcademicSystem.Data.Data;
+using IfsAcademicSystem.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +9,9 @@ namespace IfsAcademicSystem.RazorPages.Pages.Departments
 {
     public class DeleteModel : PageModel
     {
-        private readonly IfsAcademicSystem.RazorPages.Data.SchoolContext _context;
+        private readonly SchoolContext _context;
 
-        public DeleteModel(IfsAcademicSystem.RazorPages.Data.SchoolContext context)
+        public DeleteModel(SchoolContext context)
         {
             _context = context;
         }

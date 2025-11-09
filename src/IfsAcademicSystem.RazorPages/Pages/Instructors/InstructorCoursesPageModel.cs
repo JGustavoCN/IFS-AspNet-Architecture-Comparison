@@ -1,6 +1,6 @@
-﻿using IfsAcademicSystem.RazorPages.Data;
-using IfsAcademicSystem.RazorPages.Models;
-using IfsAcademicSystem.RazorPages.Models.SchoolViewModels;
+﻿using IfsAcademicSystem.Data.Data;
+using IfsAcademicSystem.Data.Models;
+using IfsAcademicSystem.Data.Models.SchoolViewModels;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace IfsAcademicSystem.RazorPages.Pages.Instructors
