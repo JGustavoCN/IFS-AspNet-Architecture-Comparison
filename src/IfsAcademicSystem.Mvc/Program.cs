@@ -16,7 +16,11 @@ namespace IfsAcademicSystem.Mvc
 
             // 1. Registrar o SchoolContext com a string de conexão do appsettings.json
             builder.Services.AddDbContext<SchoolContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("SchoolContext")));
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("SchoolContext"),
+                    b => b.MigrationsAssembly("IfsAcademicSystem.Data")
+                )
+            );
 
             // 2. Adicionar o filtro de exceção de banco de dados para o ambiente de desenvolvimento
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
