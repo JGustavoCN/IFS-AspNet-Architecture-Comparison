@@ -1,4 +1,4 @@
-﻿@model IfsAcademicSystem.Mvc.Models.Instructor
+﻿@model IfsAcademicSystem.Data.Models.Instructor
 
 @{
     ViewData["Title"] = "Criar Novo Instrutor";
@@ -43,7 +43,7 @@
                 <div class="border rounded p-3 bg-light">
                     <div class="row">
                         @{
-                            List<IfsAcademicSystem.Mvc.Models.SchoolViewModels.AssignedCourseData> courses = ViewBag.Courses;
+                            List<IfsAcademicSystem.Data.Models.SchoolViewModels.AssignedCourseData> courses = ViewBag.Courses;
                             foreach (var course in courses)
                             {
                                 <div class="col-md-4 form-check mb-2">

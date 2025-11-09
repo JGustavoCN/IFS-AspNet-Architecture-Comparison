@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore; // Necessário para EF.Property
 using IfsAcademicSystem.Data.Data;
 using IfsAcademicSystem.Data.Models;
+using IfsAcademicSystem.Data;
 
 namespace IfsAcademicSystem.RazorPages.Pages.Students
 {

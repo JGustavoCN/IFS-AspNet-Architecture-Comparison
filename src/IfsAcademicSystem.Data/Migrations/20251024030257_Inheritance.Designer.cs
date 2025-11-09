@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace IfsAcademicSystem.Mvc.Migrations
+namespace IfsAcademicSystem.Data.Migrations
 {
     [DbContext(typeof(SchoolContext))]
     [Migration("20251024030257_Inheritance")]
